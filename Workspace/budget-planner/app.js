@@ -18,6 +18,8 @@ confirmBtn.addEventListener('click', () => {
 
   // validation
   if (enteredReason.trim().length <= 0 || enteredAmount <= 0 || enteredAmount.trim().length <= 0) {
+    // show alert
+    presentAlert();
     return;
   }
 
@@ -36,3 +38,19 @@ confirmBtn.addEventListener('click', () => {
 });
 
 cancelBtn.addEventListener('click', clear);
+
+// creating and presenting ionic alert
+const presentAlert = async () => {
+  const alert = document.createElement('ion-alert');
+  //alert.cssClass = 'my-custom-class';
+  alert.header = 'Alert';
+  //alert.subHeader = 'Subtitle';
+  alert.message = 'Please enter valid input.';
+  alert.buttons = ['OK'];
+
+  document.body.appendChild(alert);
+  await alert.present();
+
+  const { role } = await alert.onDidDismiss();
+  console.log('onDidDismiss resolved with role', role);
+};
