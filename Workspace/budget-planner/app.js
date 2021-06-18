@@ -4,5 +4,13 @@ const cancelBtn = document.querySelector('#btn-cancel');
 const confirmBtn = document.querySelector('#btn-confirm');
 
 confirmBtn.addEventListener('click', () => {
-  console.log('It works!');
+  const enteredReason = reasonInput.value;
+  const enteredAmount = amountInput.value;
+
+  // validation
+  if (enteredReason.trim().length <= 0 || enteredAmount <= 0 || enteredAmount.trim().length <= 0) {
+    return;
+  }
+
+  console.log(enteredReason, enteredAmount);
 });
