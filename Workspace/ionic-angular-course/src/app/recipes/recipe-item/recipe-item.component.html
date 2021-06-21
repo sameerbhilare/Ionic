@@ -1,0 +1,15 @@
+<!-- Using Angular's routerLink.
+Ionic just adds animations and also keeps track of your navigation moves,
+it constructs a stack of pages under the hood -->
+<ion-item [routerLink]="['./', recipeItem.id]">
+  <ion-avatar slot="start">
+    <!-- ion-img is like the normal image with some optimizations.
+      one of the optimizations being that it's only loading the image when it's visible,
+      so when the user can actually see it.
+      So if it scroll down outside of the current viewport of the user, this will not be loaded. -->
+    <ion-img [src]="recipeItem.imageUrl"></ion-img>
+  </ion-avatar>
+  <ion-label>
+    {{ recipeItem.title}}
+  </ion-label>
+</ion-item>

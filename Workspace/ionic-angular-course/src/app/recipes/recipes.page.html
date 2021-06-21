@@ -6,20 +6,6 @@
 
 <ion-content>
   <ion-list>
-    <!-- Using Angular's routerLink.
-      Ionic just adds animations and also keeps track of your navigation moves,
-      it constructs a stack of pages under the hood -->
-    <ion-item *ngFor="let recipe of recipes" [routerLink]="['./', recipe.id]">
-      <ion-avatar slot="start">
-        <!-- ion-img is like the normal image with some optimizations.
-          one of the optimizations being that it's only loading the image when it's visible,
-          so when the user can actually see it.
-          So if it scroll down outside of the current viewport of the user, this will not be loaded. -->
-        <ion-img [src]="recipe.imageUrl"></ion-img>
-      </ion-avatar>
-      <ion-label>
-        {{ recipe.title}}
-      </ion-label>
-    </ion-item>
+    <app-recipe-item *ngFor="let recipe of recipes" [recipeItem]="recipe"></app-recipe-item>
   </ion-list>
 </ion-content>
