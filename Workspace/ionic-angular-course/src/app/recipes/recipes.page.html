@@ -5,5 +5,18 @@
 </ion-header>
 
 <ion-content>
-  <p>Recipes page works!</p>
+  <ion-list>
+    <ion-item *ngFor="let recipe of recipes">
+      <ion-avatar slot="start">
+        <!-- ion-img is like the normal image with some optimizations.
+          one of the optimizations being that it's only loading the image when it's visible,
+          so when the user can actually see it.
+          So if it scroll down outside of the current viewport of the user, this will not be loaded. -->
+        <ion-img [src]="recipe.imageUrl"></ion-img>
+      </ion-avatar>
+      <ion-label>
+        {{ recipe.title}}
+      </ion-label>
+    </ion-item>
+  </ion-list>
 </ion-content>
