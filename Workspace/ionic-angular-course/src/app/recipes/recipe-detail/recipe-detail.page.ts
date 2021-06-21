@@ -24,6 +24,7 @@ export class RecipeDetailPage implements OnInit {
       // 'recipeId' is defined in the routing module
       if (!paramMap.has('recipeId')) {
         // redirect
+        this.router.navigate(['/recipes']);
         return;
       }
 
