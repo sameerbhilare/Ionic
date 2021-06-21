@@ -1,5 +1,11 @@
 <ion-header>
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <!-- defaultHref - if this page is loaded as the first page. Otherwise it is optional.
+           Ionic keeps track of your navigation moves.
+           It constructs a stack of pages under the hood. -->
+      <ion-back-button defaultHref='/recipes'></ion-back-button>
+    </ion-buttons>
     <ion-title>{{ loadedRecipe.title }}</ion-title>
   </ion-toolbar>
 </ion-header>
