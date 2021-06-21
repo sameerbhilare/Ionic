@@ -25,10 +25,16 @@ export class RecipesService {
   constructor() {}
 
   getAllRecipes() {
+    console.log('getAllRecipes', this.recipes);
     return [...this.recipes]; // return a copy of recipes
   }
 
   getRecipe(recipeId: string) {
     return { ...this.recipes.find((recipe) => recipe.id === recipeId) }; // return a copy of found recipe
+  }
+
+  deleteRecipe(recipeId: string) {
+    this.recipes = this.recipes.filter((recipe) => recipe.id !== recipeId);
+    console.log('deleteRecipe', this.recipes);
   }
 }

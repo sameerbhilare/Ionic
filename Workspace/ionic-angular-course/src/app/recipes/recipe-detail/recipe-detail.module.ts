@@ -13,8 +13,8 @@ import { RecipeDetailPage } from './recipe-detail.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    RecipeDetailPageRoutingModule
+    RecipeDetailPageRoutingModule,
   ],
-  declarations: [RecipeDetailPage]
+  declarations: [RecipeDetailPage],
 })
 export class RecipeDetailPageModule {}
