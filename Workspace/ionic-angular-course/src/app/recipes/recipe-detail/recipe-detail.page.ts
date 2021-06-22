@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RecipesService } from '../recipes.service';
 import { Recipe } from '../recipe.model';
@@ -9,7 +9,7 @@ import { AlertController } from '@ionic/angular';
   templateUrl: './recipe-detail.page.html',
   styleUrls: ['./recipe-detail.page.scss'],
 })
-export class RecipeDetailPage implements OnInit {
+export class RecipeDetailPage implements OnInit, OnDestroy {
   loadedRecipe: Recipe;
 
   constructor(
@@ -20,6 +20,7 @@ export class RecipeDetailPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log('RecipeDetailPage ngOnInit');
     this.activatedRoute.paramMap.subscribe((paramMap) => {
       // 'recipeId' is defined in the routing module
       if (!paramMap.has('recipeId')) {
@@ -59,5 +60,26 @@ export class RecipeDetailPage implements OnInit {
 
     // present the alert
     await alert.present();
+  }
+
+  ionViewWillEnter() {
+    console.log('RecipeDetailPage ionViewWillEnter');
+  }
+
+  ionViewDidEnter() {
+    console.log('RecipeDetailPage ionViewDidEnter');
+  }
+
+  ionViewWillLeave() {
+    console.log('RecipeDetailPage ionViewWillLeave');
+  }
+
+  ionViewDidLeave() {
+    console.log('RecipeDetailPage ionViewDidLeave');
+  }
+
+  ngOnDestroy() {
+    // ngOnDestroy gets called when the topmost page is popped off the stack of pages.
+    console.log('RecipeDetailPage ngOnDestroy');
   }
 }
