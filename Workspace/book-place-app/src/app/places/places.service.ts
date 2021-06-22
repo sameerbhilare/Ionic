@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/quotes */
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@angular/core';
 import { Place } from './place.model';
