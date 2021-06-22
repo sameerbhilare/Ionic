@@ -5,9 +5,10 @@ import { PlaceDetailPage } from './place-detail.page';
 
 const routes: Routes = [
   {
+    // path for "/places/tabs/discover/:placeId
     path: '',
-    component: PlaceDetailPage
-  }
+    component: PlaceDetailPage,
+  },
 ];
 
 @NgModule({

@@ -4,22 +4,34 @@ import { Routes, RouterModule } from '@angular/router';
 import { OffersPage } from './offers.page';
 
 const routes: Routes = [
+  // hard coded paths must come before dynamic paths
   {
+    // path for "/places/tabs/offers"
     path: '',
-    component: OffersPage
+    component: OffersPage,
   },
   {
-    path: 'new-offer',
-    loadChildren: () => import('./new-offer/new-offer.module').then( m => m.NewOfferPageModule)
+    // path for "/places/tabs/offers/new"
+    path: 'new',
+    loadChildren: () =>
+      import('./new-offer/new-offer.module').then((m) => m.NewOfferPageModule),
   },
   {
-    path: 'edit-offer',
-    loadChildren: () => import('./edit-offer/edit-offer.module').then( m => m.EditOfferPageModule)
+    // path for "/places/tabs/offers/edit/:placeId"
+    path: 'edit/:placeId',
+    loadChildren: () =>
+      import('./edit-offer/edit-offer.module').then(
+        (m) => m.EditOfferPageModule
+      ),
   },
   {
-    path: 'offer-bookings',
-    loadChildren: () => import('./offer-bookings/offer-bookings.module').then( m => m.OfferBookingsPageModule)
-  }
+    // path for "/places/tabs/offers/:placeId"
+    path: ':placeId',
+    loadChildren: () =>
+      import('./offer-bookings/offer-bookings.module').then(
+        (m) => m.OfferBookingsPageModule
+      ),
+  },
 ];
 
 @NgModule({

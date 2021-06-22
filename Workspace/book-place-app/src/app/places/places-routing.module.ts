@@ -5,17 +5,40 @@ import { PlacesPage } from './places.page';
 
 const routes: Routes = [
   {
+    // path for "/places/tabs"
+    path: 'tabs',
+    component: PlacesPage,
+    // the component where you have your ion-tabs element needs to have some child routes
+    children: [
+      {
+        // path for "/places/tabs/discover"
+        // path matches with 'tab' attr of ion-tab inside places.page.html
+        path: 'discover',
+        loadChildren: () =>
+          import('./discover/discover.module').then(
+            (m) => m.DiscoverPageModule
+          ),
+      },
+      {
+        // path for "/places/tabs/offers"
+        path: 'offers',
+        loadChildren: () =>
+          import('./offers/offers.module').then((m) => m.OffersPageModule),
+      },
+      {
+        // path for "/places/tabs"
+        path: '',
+        redirectTo: '/places/tabs/discover',
+        pathMatch: 'full', // so that it should only kick in whenwe use "/places/tabs" exactly
+      },
+    ],
+  },
+  {
+    // path for "/places"
     path: '',
-    component: PlacesPage
+    redirectTo: '/places/tabs/discover',
+    pathMatch: 'full', // so that it should only kick in whenwe use "/places" exactly
   },
-  {
-    path: 'discover',
-    loadChildren: () => import('./discover/discover.module').then( m => m.DiscoverPageModule)
-  },
-  {
-    path: 'offers',
-    loadChildren: () => import('./offers/offers.module').then( m => m.OffersPageModule)
-  }
 ];
 
 @NgModule({
