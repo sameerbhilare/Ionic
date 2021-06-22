@@ -8,7 +8,7 @@ const routes: Routes = [
     // path for "/places/tabs"
     path: 'tabs',
     component: PlacesPage,
-    // the component where you have your ion-tabs element needs to have some child routes
+    // the component where you have your ion-tabs element needs to have some child routes matching 'tab' attr of ion-tab
     children: [
       {
         // path for "/places/tabs/discover"
