@@ -19,6 +19,14 @@
           <ion-card-content>
             <p>{{ loadedPlaces[0].description }}</p>
           </ion-card-content>
+          <div class="ion-text-right">
+            <!-- "routerDirection" attribute to ion-button is ionic feature.
+                 It gives hint to ionic whether this is forward link on backward link
+                So that ionic can play appropriate animation.
+                Allowed values are - "back" | "forward" | "root"
+             -->
+            <ion-button fill="clear" color="primary" [routerLink]="['/', 'places', 'tabs', 'discover', loadedPlaces[0].id]">More</ion-button>
+          </div>
         </ion-card>
       </ion-col>
     </ion-row>
@@ -28,7 +36,8 @@
       <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center">
         <ion-list>
           <!-- all places except first -->
-          <ion-item *ngFor="let place of loadedPlaces.slice(1)">
+          <!-- 'detail' attribute on ion-item element shows a '>' sign on the UI so that it is clear that its clickable-->
+          <ion-item *ngFor="let place of loadedPlaces.slice(1)" [routerLink]="['/', 'places', 'tabs', 'discover', place.id]" detail>
             <ion-thumbnail slot="start">
               <ion-img [src]="place.imageUrl"></ion-img>
             </ion-thumbnail>
