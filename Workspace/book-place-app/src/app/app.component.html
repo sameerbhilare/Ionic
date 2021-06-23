@@ -1,8 +1,34 @@
 <!-- root of ionic page. ion-app is one per html page. -->
 <ion-app>
+  <!-- wrapper around entire side drawer -->
+  <ion-menu side="start">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>PairBnB</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-item lines="none">
+          <ion-icon name="business" slot="start"></ion-icon>
+          <ion-label>Discover Places</ion-label>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-icon name="checkbox-outline" slot="start"></ion-icon>
+          <ion-label>Your Bookings</ion-label>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-icon name="exit" slot="start"></ion-icon>
+          <ion-label>Logout</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
   <!-- ion-router-outlet is directive added by @ionic/angular.
     ion-router-outlet wraps the angular router-outlet and adds extra stylings and features
     in order to properly view the ionic pages.
   -->
-  <ion-router-outlet></ion-router-outlet>
+  <!-- adding 'main' because Ionic will internally look for the main attribute when it tries to open the menu  -->
+  <ion-router-outlet main></ion-router-outlet>
 </ion-app>
