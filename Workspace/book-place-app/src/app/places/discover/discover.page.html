@@ -1,5 +1,15 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <!-- way 1: ion-menu-button will automatically take your default ion-menu you have and open that. -->
+      <ion-menu-button></ion-menu-button>
+
+      <!-- way 2: in csse of multiple ion-menu elements specify which menu to openvia 'menu'-->
+      <!-- <ion-menu-button menu="mainMenu"></ion-menu-button> -->
+
+      <!-- way 3: opening menu programatically -->
+      <!-- <ion-button (click)="onOpenMenu()">Open</ion-button> -->
+    </ion-buttons>
     <ion-title>Discover Places</ion-title>
   </ion-toolbar>
 </ion-header>
