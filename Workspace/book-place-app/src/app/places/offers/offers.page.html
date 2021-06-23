@@ -1,6 +1,13 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>My Offers</ion-title>
+    <!-- Any button added to ion-toolbar should always be in ion-buttons group -->
+    <!-- "primary" means end of toolbar -->
+    <ion-buttons slot="primary">
+      <ion-button routerLink="/places/tabs/offers/new">
+        <ion-icon name="add" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
