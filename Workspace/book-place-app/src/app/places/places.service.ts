@@ -31,9 +31,14 @@ export class PlacesService {
     ),
   ];
 
+  constructor() {}
+
   get places() {
     return [...this._places];
   }
 
-  constructor() {}
+  getPlace(placeId: string) {
+    // returning a clone
+    return { ...this._places.find((p) => p.id === placeId) };
+  }
 }
