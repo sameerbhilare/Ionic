@@ -44,11 +44,11 @@
     <ion-row>
       <!-- total col size 12. for sm screens - total 8 so adding remaning 4 for offset (left and right) -->
       <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center">
-        <ion-list>
+        <ion-virtual-scroll [items]="listedLoadedPlaces" approxItemHeight="70px">
           <!-- all places except first -->
           <!-- 'detail' attribute on ion-item element shows a '>' sign on the UI so that it is clear that its clickable-->
           <ion-item
-            *ngFor="let place of loadedPlaces.slice(1)"
+            *virtualItem="let place"
             [routerLink]="['/', 'places', 'tabs', 'discover', place.id]"
             detail>
             <ion-thumbnail slot="start">
@@ -59,7 +59,7 @@
               <p>{{ place.description }}</p>
             </ion-title>
           </ion-item>
-        </ion-list>
+        </ion-virtual-scroll>
       </ion-col>
     </ion-row>
   </ion-grid>
