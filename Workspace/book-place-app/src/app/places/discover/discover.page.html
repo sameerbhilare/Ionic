@@ -47,7 +47,10 @@
         <ion-list>
           <!-- all places except first -->
           <!-- 'detail' attribute on ion-item element shows a '>' sign on the UI so that it is clear that its clickable-->
-          <ion-item *ngFor="let place of loadedPlaces.slice(1)" [routerLink]="['/', 'places', 'tabs', 'discover', place.id]" detail>
+          <ion-item
+            *ngFor="let place of loadedPlaces.slice(1)"
+            [routerLink]="['/', 'places', 'tabs', 'discover', place.id]"
+            detail>
             <ion-thumbnail slot="start">
               <ion-img [src]="place.imageUrl"></ion-img>
             </ion-thumbnail>
