@@ -30,12 +30,31 @@ export class PlaceDetailPage implements OnInit {
     });
   }
 
-  onBookPlace() {
-    this.modalCtrl
-      .create({ component: CreateBookingComponent })
-      .then((modalEl) => {
-        modalEl.present();
-      });
+  async onBookPlace() {
+    // we can pass any datato model via 'componentProps'
+    // create modal
+    const modal = await this.modalCtrl.create({
+      component: CreateBookingComponent,
+      componentProps: { selectedPlace: this.loadedPlace },
+    });
+    // present modal
+    await modal.present();
+
+    // on dismiss
+    const resultData = await modal.onWillDismiss();
+    console.log(resultData);
+    if (resultData.role === 'confirm') {
+      console.log('Booked!');
+    }
+
+    // this.modalCtrl
+    //   .create({
+    //     component: CreateBookingComponent,
+    //     componentProps: { selectedPlace: this.loadedPlace },
+    //   })
+    //   .then((modalEl) => {
+    //     modalEl.present();
+    //   });
 
     //this.router.navigateByUrl('/places/tabs/discover');
 
