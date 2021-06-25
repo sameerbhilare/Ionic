@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController, NavController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+} from '@ionic/angular';
 import { PlacesService } from '../../places.service';
 import { Place } from '../../place.model';
 import { CreateBookingComponent } from '../../../bookings/create-booking/create-booking.component';
@@ -17,7 +21,8 @@ export class PlaceDetailPage implements OnInit {
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private placesService: PlacesService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private actionSheetCtrl: ActionSheetController
   ) {}
 
   ngOnInit() {
@@ -31,21 +36,31 @@ export class PlaceDetailPage implements OnInit {
   }
 
   async onBookPlace() {
-    // we can pass any datato model via 'componentProps'
-    // create modal
-    const modal = await this.modalCtrl.create({
-      component: CreateBookingComponent,
-      componentProps: { selectedPlace: this.loadedPlace },
+    // define action sheet
+    // An actionsheet is basically a set of options that slides up from the bottom of the page.
+    const actionSheetEl = await this.actionSheetCtrl.create({
+      header: 'Choose an Action',
+      buttons: [
+        {
+          text: 'Select Date',
+          handler: () => {
+            this.openBookModal('select');
+          },
+        },
+        {
+          text: 'Random Date',
+          handler: () => {
+            this.openBookModal('random');
+          },
+        },
+        // role 'destructive' will turn the button red.
+        // role 'cancel' will be placed at the last (bottommost)
+        { text: 'Cancel', role: 'cancel' },
+      ],
     });
-    // present modal
-    await modal.present();
 
-    // on dismiss
-    const resultData = await modal.onWillDismiss();
-    console.log(resultData);
-    if (resultData.role === 'confirm') {
-      console.log('Booked!');
-    }
+    // present the action sheet
+    await actionSheetEl.present();
 
     // this.modalCtrl
     //   .create({
@@ -69,5 +84,23 @@ export class PlaceDetailPage implements OnInit {
     // does not work if stack is empty. So wont work is app starts from this page
     // ADVANTAGE - is we dont have to specify path/URL
     // this.navCtrl.pop();
+  }
+
+  async openBookModal(mode: 'select' | 'random') {
+    // we can pass any datato model via 'componentProps'
+    // create modal
+    const modal = await this.modalCtrl.create({
+      component: CreateBookingComponent,
+      componentProps: { selectedPlace: this.loadedPlace },
+    });
+    // present modal
+    await modal.present();
+
+    // on dismiss
+    const resultData = await modal.onWillDismiss();
+    console.log(resultData);
+    if (resultData.role === 'confirm') {
+      console.log('Booked!');
+    }
   }
 }
