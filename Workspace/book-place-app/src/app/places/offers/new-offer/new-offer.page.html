@@ -13,45 +13,47 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <ion-item>
-          <ion-title position="floating">Title</ion-title>
-          <!-- autocomplete, autocorrect, autocapitalize, etc. are useful attributes available-->
-          <ion-input type="text" autocomplete autocorrect></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <ion-item>
-          <ion-title position="floating">Short Description</ion-title>
-          <ion-textarea rows="3"></ion-textarea>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <ion-item>
-          <ion-title position="floating">Price</ion-title>
-          <ion-input type="number"></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size-sm="3" offset-sm="3">
-        <ion-item>
-          <ion-title position="floating">Available From</ion-title>
-          <ion-datetime min="2021-05-09" max="2022-05-09"></ion-datetime>
-        </ion-item>
-      </ion-col>
-      <ion-col size-sm="3">
-        <ion-item>
-          <ion-title position="floating">Available To</ion-title>
-          <ion-datetime min="2021-05-09" max="2022-05-09"></ion-datetime>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <form [formGroup]="form">
+    <ion-grid>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item>
+            <ion-title position="floating">Title</ion-title>
+            <!-- autocomplete, autocorrect, autocapitalize, etc. are useful attributes available-->
+            <ion-input type="text" autocomplete autocorrect formControlName="title"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item>
+            <ion-title position="floating">Short Description</ion-title>
+            <ion-textarea rows="3" formControlName="description"></ion-textarea>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-item>
+            <ion-title position="floating">Price</ion-title>
+            <ion-input type="number" formControlName="price"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="3" offset-sm="3">
+          <ion-item>
+            <ion-title position="floating">Available From</ion-title>
+            <ion-datetime min="2021-05-09" max="2022-05-09" formControlName="dateFrom"></ion-datetime>
+          </ion-item>
+        </ion-col>
+        <ion-col size-sm="3">
+          <ion-item>
+            <ion-title position="floating">Available To</ion-title>
+            <ion-datetime min="2021-05-09" max="2022-05-09" formControlName="dateTo"></ion-datetime>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>
