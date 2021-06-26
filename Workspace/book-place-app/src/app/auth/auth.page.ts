@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
+import { NgForm } from '@angular/forms';
 import { LoadingController } from '@ionic/angular';
 
 @Component({
@@ -35,5 +36,9 @@ export class AuthPage implements OnInit {
       spinnerEl.dismiss();
       this.router.navigateByUrl('/places/tabs/discover');
     }, 1500);
+  }
+
+  onSubmit(form: NgForm) {
+    console.log(form);
   }
 }

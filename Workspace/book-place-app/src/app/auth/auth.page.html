@@ -5,33 +5,47 @@
 </ion-header>
 
 <ion-content>
-  <ion-grid>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <ion-list>
-          <ion-item>
-            <ion-label position="floating">Email</ion-label>
-            <ion-input type="email"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Password</ion-label>
-            <ion-input type="password"></ion-input>
-          </ion-item>
-        </ion-list>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size-sm="6" offset-sm="3">
-        <!-- spinner -->
-        <!-- <div class="ion-text-center">
-          <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner>
-        </div> -->
-        <ion-button color="primary" fill="clear" expand="block">Switch to Login</ion-button>
-        <ion-button color="primary" expand="block" (click)="onLogin()">
-          Login
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
+  <!-- #form is local reference to the form(ngForm) created by Angular for us -->
+  <!-- ngSubmit will prevent default form submission which will result in new action and page loading -->
+  <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+    <ion-grid>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <ion-list>
+            <ion-item>
+              <ion-label position="floating">Email</ion-label>
+              <!-- ion-input element supports all the form related directives supported by normal input elements -->
+              <ion-input
+                type="email"
+                ngModel
+                name="email"
+                required
+                email></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input
+                type="password"
+                ngModel
+                name="password"
+                required
+                minlength="6"></ion-input>
+            </ion-item>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size-sm="6" offset-sm="3">
+          <!-- spinner -->
+          <!-- <div class="ion-text-center">
+            <ion-spinner color="primary" *ngIf="isLoading"></ion-spinner>
+          </div> -->
+          <ion-button type="button" color="primary" fill="clear" expand="block">Switch to Login</ion-button>
+          <ion-button type="submit" color="primary" expand="block" (click)="onLogin()">
+            Login
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>
