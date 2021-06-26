@@ -11,6 +11,7 @@ import { LoadingController } from '@ionic/angular';
 })
 export class AuthPage implements OnInit {
   isLoading = false;
+  authMode: 'login' | 'signup' = 'login';
 
   constructor(
     private authService: AuthService,
@@ -40,5 +41,14 @@ export class AuthPage implements OnInit {
 
   onSubmit(form: NgForm) {
     console.log(form);
+  }
+
+  // toggle auth mode - login or signup
+  onSwitchAuthMode() {
+    if (this.authMode === 'login') {
+      this.authMode = 'signup';
+    } else {
+      this.authMode = 'login';
+    }
   }
 }
