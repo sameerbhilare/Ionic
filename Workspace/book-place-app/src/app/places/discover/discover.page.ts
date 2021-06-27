@@ -13,9 +13,9 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class DiscoverPage implements OnInit, OnDestroy {
   loadedPlaces: Place[] = [];
-  listedLoadedPlaces: Place[] = [];
   relevantPlaces: Place[] = [];
   placesSub: Subscription;
+  private filter = 'all';
 
   constructor(
     private placesService: PlacesService,
@@ -26,8 +26,7 @@ export class DiscoverPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.placesSub = this.placesService.places.subscribe((places) => {
       this.loadedPlaces = places;
-      this.relevantPlaces = this.loadedPlaces;
-      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
+      this.onFilterUpdate(this.filter);
     });
   }
 
@@ -40,20 +39,11 @@ export class DiscoverPage implements OnInit, OnDestroy {
      It's a generic type, which means you can also pass some extra data
      about which custom event data does custom event object will hold.
   */
-  onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
-    console.log(event.detail);
-    if (event.detail.value === 'all') {
-      // all places
-      this.relevantPlaces = this.loadedPlaces;
-      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
-    } else {
-      // bookable places
-      // i should not be able to book my places
-      this.relevantPlaces = this.loadedPlaces.filter(
-        (place) => place.userId !== this.authService.userId
-      );
-      this.listedLoadedPlaces = this.relevantPlaces.slice(1);
-    }
+  onFilterUpdate(filter: string) {
+    const isShown = (place) =>
+      filter === 'all' || place.userId !== this.authService.userId;
+    this.relevantPlaces = this.loadedPlaces.filter(isShown);
+    this.filter = filter;
   }
 
   ngOnDestroy() {
