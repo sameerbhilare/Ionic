@@ -1,6 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Place } from '../../places/place.model';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-create-booking',
@@ -10,6 +11,7 @@ import { Place } from '../../places/place.model';
 export class CreateBookingComponent implements OnInit {
   @Input() selectedPlace: Place;
   @Input() selectedMode: 'select' | 'random';
+  @ViewChild('form') form: NgForm;
 
   startDate: string; // string bcz we want to pass it to template(html)
   endDate: string; // string bcz we want to pass it to template(html)
@@ -42,9 +44,32 @@ export class CreateBookingComponent implements OnInit {
   }
 
   onBookPlace() {
+    if (!this.form.valid || !this.datesValid()) {
+      return;
+    }
     // alternatively we can pass id of the modal which you can set while creating a modal
     // and also pass some data
-    this.modalCtrl.dismiss({ message: 'This is a dummy message!' }, 'confirm');
+    this.modalCtrl.dismiss(
+      {
+        bookingData: {
+          firstName: this.form.value.firstName,
+          lastName: this.form.value.lastName,
+          guestNumber: this.form.value.guestNumber,
+          startDate: this.form.value.dateFrom,
+          endDate: this.form.value.dateTo,
+        },
+      },
+      'confirm'
+    );
+  }
+
+  datesValid() {
+    if (!this.form || !this.form.value.dateFrom || !this.form.value.dateTo) {
+      return false;
+    }
+    const startDate = new Date(this.form.value.dateFrom);
+    const endDate = new Date(this.form.value.dateTo);
+    return endDate > startDate;
   }
 
   onCancel() {
