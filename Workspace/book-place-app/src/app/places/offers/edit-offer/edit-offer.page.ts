@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Place } from '../../place.model';
 import { PlacesService } from '../../places.service';
-import { NavController } from '@ionic/angular';
+import { NavController, LoadingController } from '@ionic/angular';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -19,7 +19,9 @@ export class EditOfferPage implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private placesService: PlacesService
+    private placesService: PlacesService,
+    private router: Router,
+    private loadingCtrl: LoadingController
   ) {}
 
   ngOnInit() {
@@ -50,11 +52,30 @@ export class EditOfferPage implements OnInit, OnDestroy {
     });
   }
 
-  onEditOffer() {
+  async onEditOffer() {
     if (!this.form.valid) {
       return;
     }
-    console.log(this.form);
+    // define spinner
+    const spinnerEl = await this.loadingCtrl.create({
+      keyboardClose: true,
+      message: 'Updating Place...',
+    });
+    // show spinner
+    await spinnerEl.present();
+    // this is one time observable so no need to explicitly clear it. (refer - PlacesService - updatePlace()
+    this.placesService
+      .updatePlace(
+        this.loadedPlace.id,
+        this.form.value.title,
+        this.form.value.description
+      )
+      .subscribe(() => {
+        // dismiss the spinner
+        spinnerEl.dismiss();
+        this.form.reset();
+        this.router.navigateByUrl('/places/tabs/offers');
+      });
   }
 
   ngOnDestroy() {

@@ -91,4 +91,31 @@ export class PlacesService {
       })
     );
   }
+
+  updatePlace(placeId: string, title: string, description: string) {
+    return this._places.pipe(
+      // only take the latest and dont set active subscription
+      take(1),
+      delay(1000), // faking delay
+      tap((places) => {
+        // find updated place index
+        const updatedPlaceIndex = places.findIndex((p) => p.id === placeId);
+        // take copy of existing places
+        const updatedPlaces = [...places];
+        const oldPlace = updatedPlaces[updatedPlaceIndex];
+        updatedPlaces[updatedPlaceIndex] = new Place(
+          oldPlace.id,
+          title,
+          description,
+          oldPlace.imageUrl,
+          oldPlace.price,
+          oldPlace.availableFrom,
+          oldPlace.availableTo,
+          oldPlace.userId
+        );
+        // emit updated places array
+        this._places.next(updatedPlaces);
+      })
+    );
+  }
 }
