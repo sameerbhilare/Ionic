@@ -91,7 +91,7 @@ export class PlaceDetailPage implements OnInit {
     // create modal
     const modal = await this.modalCtrl.create({
       component: CreateBookingComponent,
-      componentProps: { selectedPlace: this.loadedPlace },
+      componentProps: { selectedPlace: this.loadedPlace, selectedMode: mode },
     });
     // present modal
     await modal.present();
