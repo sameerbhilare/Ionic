@@ -12,6 +12,7 @@ import { AuthService } from '../../auth/auth.service';
   styleUrls: ['./discover.page.scss'],
 })
 export class DiscoverPage implements OnInit, OnDestroy {
+  isLoading = false;
   loadedPlaces: Place[] = [];
   relevantPlaces: Place[] = [];
   placesSub: Subscription;
@@ -27,6 +28,13 @@ export class DiscoverPage implements OnInit, OnDestroy {
     this.placesSub = this.placesService.places.subscribe((places) => {
       this.loadedPlaces = places;
       this.onFilterUpdate(this.filter);
+    });
+  }
+
+  ionViewWillEnter() {
+    this.isLoading = true;
+    this.placesService.fetchPlaces().subscribe(() => {
+      this.isLoading = false;
     });
   }
 
