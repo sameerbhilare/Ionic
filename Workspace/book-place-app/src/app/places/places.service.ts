@@ -2,6 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@angular/core';
 import { Place } from './place.model';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +41,7 @@ export class PlacesService {
     ),
   ];
 
-  constructor() {}
+  constructor(private authService: AuthService) {}
 
   get places() {
     return [...this._places];
@@ -49,5 +50,25 @@ export class PlacesService {
   getPlace(placeId: string) {
     // returning a clone
     return { ...this._places.find((p) => p.id === placeId) };
+  }
+
+  addPlace(
+    title: string,
+    description: string,
+    price: number,
+    dateFrom: Date,
+    dateTo: Date
+  ) {
+    const newPlace = new Place(
+      Math.random().toString(),
+      title,
+      description,
+      'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
+      price,
+      dateFrom,
+      dateTo,
+      this.authService.userId
+    );
+    this._places.push(newPlace);
   }
 }
