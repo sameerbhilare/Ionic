@@ -5,7 +5,8 @@ import { Injectable } from '@angular/core';
 import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
 import { BehaviorSubject } from 'rxjs';
-import { delay, map, take, tap } from 'rxjs/operators';
+import { delay, map, switchMap, take, tap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -45,7 +46,7 @@ export class PlacesService {
     ),
   ]);
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private http: HttpClient) {}
 
   get places() {
     return this._places.asObservable();
@@ -79,17 +80,29 @@ export class PlacesService {
       this.authService.userId
     );
 
-    // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
-    return this.places.pipe(
-      take(1),
-      // faking delay
-      delay(1000),
-      // tap will allow us to perform some other action from this chain and wont affect the chain
-      tap((placesArr) => {
-        // .cancat() is default array method which adds an item to the array and returns a new array
-        this._places.next(placesArr.concat(newPlace)); // emit the new array
-      })
-    );
+    let generatedId: string;
+    return this.http
+      .post<{ name: string }>(
+        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-place.json',
+        // copy all properties but set id to null as firebase will set the id while saving
+        { ...newPlace, id: null }
+      )
+      .pipe(
+        // gets data and returns new observation and will replace existing observable in the chain
+        switchMap((responseData) => {
+          generatedId = responseData.name;
+          return this.places;
+        }),
+        // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
+        take(1),
+        // tap will allow us to perform some other action from this chain and wont affect the chain
+        tap((placesArr) => {
+          // using firebase generated id
+          newPlace.id = generatedId;
+          // .cancat() is default array method which adds an item to the array and returns a new array
+          this._places.next(placesArr.concat(newPlace)); // emit the new array
+        })
+      );
   }
 
   updatePlace(placeId: string, title: string, description: string) {
