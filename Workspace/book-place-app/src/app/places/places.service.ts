@@ -66,7 +66,7 @@ export class PlacesService {
     // returns key of any name and value as PlaceData object
     return this.http
       .get<{ [key: string]: PlaceData }>(
-        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-place.json'
+        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json'
       )
       .pipe(
         // map operator gets responseData and returns restructured data
@@ -131,7 +131,7 @@ export class PlacesService {
     let generatedId: string;
     return this.http
       .post<{ name: string }>(
-        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-place.json',
+        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json',
         // copy all properties but set id to null as firebase will set the id while saving
         { ...newPlace, id: null }
       )
@@ -155,15 +155,16 @@ export class PlacesService {
   }
 
   updatePlace(placeId: string, title: string, description: string) {
+    let updatedPlaces: Place[] = [];
+
     return this._places.pipe(
       // only take the latest and dont set active subscription
       take(1),
-      delay(1000), // faking delay
-      tap((places) => {
+      switchMap((places) => {
         // find updated place index
         const updatedPlaceIndex = places.findIndex((p) => p.id === placeId);
         // take copy of existing places
-        const updatedPlaces = [...places];
+        updatedPlaces = [...places];
         const oldPlace = updatedPlaces[updatedPlaceIndex];
         updatedPlaces[updatedPlaceIndex] = new Place(
           oldPlace.id,
@@ -175,6 +176,15 @@ export class PlacesService {
           oldPlace.availableTo,
           oldPlace.userId
         );
+
+        // return different observable
+        // put will replace existing data with new data
+        return this.http.put(
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places/${placeId}.json`,
+          { ...updatedPlaces[updatedPlaceIndex], id: null }
+        );
+      }),
+      tap((resData) => {
         // emit updated places array
         this._places.next(updatedPlaces);
       })
