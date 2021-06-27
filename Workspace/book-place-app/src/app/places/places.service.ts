@@ -1,10 +1,11 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable @typescript-eslint/quotes */
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@angular/core';
 import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
 import { BehaviorSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -52,7 +53,12 @@ export class PlacesService {
 
   getPlace(placeId: string) {
     // returning a clone
-    return { ...this._places.find((p) => p.id === placeId) };
+    return this._places.pipe(
+      take(1),
+      map((placesArr) => {
+        return { ...placesArr.find((p) => p.id === placeId) };
+      })
+    );
   }
 
   addPlace(

@@ -1,18 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Place } from '../../place.model';
 import { PlacesService } from '../../places.service';
 import { NavController } from '@ionic/angular';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-offer',
   templateUrl: './edit-offer.page.html',
   styleUrls: ['./edit-offer.page.scss'],
 })
-export class EditOfferPage implements OnInit {
+export class EditOfferPage implements OnInit, OnDestroy {
   loadedPlace: Place;
   form: FormGroup;
+  placeSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -21,12 +23,19 @@ export class EditOfferPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    // angular will take care of paramMap unsubscription
     this.route.paramMap.subscribe((paramMap) => {
       if (!paramMap.has('placeId')) {
         this.navCtrl.navigateBack('/places/tabs/offers');
         return;
       }
-      this.loadedPlace = this.placesService.getPlace(paramMap.get('placeId'));
+
+      // this subscrition we need to manage
+      this.placeSub = this.placesService
+        .getPlace(paramMap.get('placeId'))
+        .subscribe((place) => {
+          this.loadedPlace = place;
+        });
       // initialize form
       this.form = new FormGroup({
         title: new FormControl(this.loadedPlace.title, {
@@ -46,5 +55,11 @@ export class EditOfferPage implements OnInit {
       return;
     }
     console.log(this.form);
+  }
+
+  ngOnDestroy() {
+    if (this.placeSub) {
+      this.placeSub.unsubscribe();
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   ActionSheetController,
@@ -8,14 +8,16 @@ import {
 import { PlacesService } from '../../places.service';
 import { Place } from '../../place.model';
 import { CreateBookingComponent } from '../../../bookings/create-booking/create-booking.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-place-detail',
   templateUrl: './place-detail.page.html',
   styleUrls: ['./place-detail.page.scss'],
 })
-export class PlaceDetailPage implements OnInit {
+export class PlaceDetailPage implements OnInit, OnDestroy {
   loadedPlace: Place;
+  placeSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -26,12 +28,19 @@ export class PlaceDetailPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    // angular will take care of paramMap unsubscription
     this.route.paramMap.subscribe((paramMap) => {
       if (!paramMap.has('placeId')) {
         this.navCtrl.navigateBack('/places/tabs/discover');
         return;
       }
-      this.loadedPlace = this.placesService.getPlace(paramMap.get('placeId'));
+
+      // this subscrition we need to manage
+      this.placeSub = this.placesService
+        .getPlace(paramMap.get('placeId'))
+        .subscribe((place) => {
+          this.loadedPlace = place;
+        });
     });
   }
 
@@ -101,6 +110,12 @@ export class PlaceDetailPage implements OnInit {
     console.log(resultData);
     if (resultData.role === 'confirm') {
       console.log('Booked!');
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.placeSub) {
+      this.placeSub.unsubscribe();
     }
   }
 }
