@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
 import { BehaviorSubject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { delay, map, take, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -80,9 +80,15 @@ export class PlacesService {
     );
 
     // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
-    this.places.pipe(take(1)).subscribe((placesArr) => {
-      // .cancat() is default array method which adds an item to the array and returns a new array
-      this._places.next(placesArr.concat(newPlace)); // emit the new array
-    });
+    return this.places.pipe(
+      take(1),
+      // faking delay
+      delay(1000),
+      // tap will allow us to perform some other action from this chain and wont affect the chain
+      tap((placesArr) => {
+        // .cancat() is default array method which adds an item to the array and returns a new array
+        this._places.next(placesArr.concat(newPlace)); // emit the new array
+      })
+    );
   }
 }

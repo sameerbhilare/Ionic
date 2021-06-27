@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { PlacesService } from '../../places.service';
 import { Router } from '@angular/router';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-new-offer',
@@ -11,7 +12,11 @@ import { Router } from '@angular/router';
 export class NewOfferPage implements OnInit {
   form: FormGroup;
 
-  constructor(private placesService: PlacesService, private router: Router) {}
+  constructor(
+    private placesService: PlacesService,
+    private router: Router,
+    private loadingCtrl: LoadingController
+  ) {}
 
   ngOnInit() {
     this.form = new FormGroup({
@@ -38,18 +43,32 @@ export class NewOfferPage implements OnInit {
     });
   }
 
-  onCreateOffer() {
+  async onCreateOffer() {
     if (!this.form.valid) {
       return;
     }
-    this.placesService.addPlace(
-      this.form.value.title,
-      this.form.value.description,
-      +this.form.value.price,
-      new Date(this.form.value.dateFrom),
-      new Date(this.form.value.dateTo)
-    );
-    this.form.reset();
-    this.router.navigate(['/places/tabs/offers']);
+
+    // define spinner
+    const spinnerEl = await this.loadingCtrl.create({
+      keyboardClose: true,
+      message: 'Creating Place...',
+    });
+    // show spinner
+    await spinnerEl.present();
+
+    this.placesService
+      .addPlace(
+        this.form.value.title,
+        this.form.value.description,
+        +this.form.value.price,
+        new Date(this.form.value.dateFrom),
+        new Date(this.form.value.dateTo)
+      )
+      .subscribe((places) => {
+        // dismiss the spinner
+        spinnerEl.dismiss();
+        this.form.reset();
+        this.router.navigate(['/places/tabs/offers']);
+      });
   }
 }
