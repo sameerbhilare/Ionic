@@ -3,12 +3,15 @@
 import { Injectable } from '@angular/core';
 import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
+import { BehaviorSubject } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PlacesService {
-  private _places: Place[] = [
+  // BehaviorSubject is same as Subject but all future subscribers will immediately receive last emitted data (latest data)
+  private _places = new BehaviorSubject<Place[]>([
     new Place(
       'p1',
       'Manhattan Mansion',
@@ -39,12 +42,12 @@ export class PlacesService {
       new Date('2021-12-31'),
       'abc'
     ),
-  ];
+  ]);
 
   constructor(private authService: AuthService) {}
 
   get places() {
-    return [...this._places];
+    return this._places.asObservable();
   }
 
   getPlace(placeId: string) {
@@ -69,6 +72,11 @@ export class PlacesService {
       dateTo,
       this.authService.userId
     );
-    this._places.push(newPlace);
+
+    // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
+    this.places.pipe(take(1)).subscribe((placesArr) => {
+      // .cancat() is default array method which adds an item to the array and returns a new array
+      this._places.next(placesArr.concat(newPlace)); // emit the new array
+    });
   }
 }
