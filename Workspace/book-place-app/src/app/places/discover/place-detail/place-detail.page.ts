@@ -9,6 +9,8 @@ import { PlacesService } from '../../places.service';
 import { Place } from '../../place.model';
 import { CreateBookingComponent } from '../../../bookings/create-booking/create-booking.component';
 import { Subscription } from 'rxjs';
+import { BookingService } from '../../../bookings/booking.service';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-place-detail',
@@ -24,7 +26,9 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private navCtrl: NavController,
     private placesService: PlacesService,
     private modalCtrl: ModalController,
-    private actionSheetCtrl: ActionSheetController
+    private actionSheetCtrl: ActionSheetController,
+    private bookingService: BookingService,
+    private loadingCtrl: LoadingController
   ) {}
 
   ngOnInit() {
@@ -109,7 +113,29 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     const resultData = await modal.onWillDismiss();
     console.log(resultData);
     if (resultData.role === 'confirm') {
-      console.log('Booked!');
+      // define spinner
+      const spinnerEl = await this.loadingCtrl.create({
+        keyboardClose: true,
+        message: 'Booking Place...',
+      });
+      // show spinner
+      await spinnerEl.present();
+      this.bookingService
+        .addBooking(
+          this.loadedPlace.id,
+          this.loadedPlace.title,
+          this.loadedPlace.imageUrl,
+          resultData.data.bookingData.firstName,
+          resultData.data.bookingData.lastName,
+          resultData.data.bookingData.guestNumber,
+          resultData.data.bookingData.startDate,
+          resultData.data.bookingData.endDate
+        )
+        .subscribe(() => {
+          // close spinner
+          spinnerEl.dismiss();
+          console.log('Booked!');
+        });
     }
   }
 
