@@ -8,48 +8,96 @@ import { BehaviorSubject } from 'rxjs';
 import { delay, map, switchMap, take, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
+interface PlaceData {
+  availableFrom: string;
+  availableTo: string;
+  description: string;
+  imageUrl: string;
+  price: number;
+  title: string;
+  userId: string;
+}
 @Injectable({
   providedIn: 'root',
 })
 export class PlacesService {
   // BehaviorSubject is same as Subject but all future subscribers will immediately receive last emitted data (latest data)
-  private _places = new BehaviorSubject<Place[]>([
-    new Place(
-      'p1',
-      'Manhattan Mansion',
-      'In the heart of New York City.',
-      'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
-      149.99,
-      new Date('2021-01-01'),
-      new Date('2021-12-31'),
-      'xys'
-    ),
-    new Place(
-      'p2',
-      "L'Amour Toujours",
-      'A romantic place in Paris!',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Paris_Night.jpg/1024px-Paris_Night.jpg',
-      189.99,
-      new Date('2021-01-01'),
-      new Date('2021-12-31'),
-      'abc'
-    ),
-    new Place(
-      'p3',
-      'The Foggy Palace',
-      'Not your average city trip!',
-      'https://upload.wikimedia.org/wikipedia/commons/0/01/San_Francisco_with_two_bridges_and_the_fog.jpg',
-      99.99,
-      new Date('2021-01-01'),
-      new Date('2021-12-31'),
-      'abc'
-    ),
-  ]);
+  private _places = new BehaviorSubject<Place[]>([]);
+  // private _places = new BehaviorSubject<Place[]>([
+  //   new Place(
+  //     'p1',
+  //     'Manhattan Mansion',
+  //     'In the heart of New York City.',
+  //     'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
+  //     149.99,
+  //     new Date('2021-01-01'),
+  //     new Date('2021-12-31'),
+  //     'xys'
+  //   ),
+  //   new Place(
+  //     'p2',
+  //     "L'Amour Toujours",
+  //     'A romantic place in Paris!',
+  //     'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Paris_Night.jpg/1024px-Paris_Night.jpg',
+  //     189.99,
+  //     new Date('2021-01-01'),
+  //     new Date('2021-12-31'),
+  //     'abc'
+  //   ),
+  //   new Place(
+  //     'p3',
+  //     'The Foggy Palace',
+  //     'Not your average city trip!',
+  //     'https://upload.wikimedia.org/wikipedia/commons/0/01/San_Francisco_with_two_bridges_and_the_fog.jpg',
+  //     99.99,
+  //     new Date('2021-01-01'),
+  //     new Date('2021-12-31'),
+  //     'abc'
+  //   ),
+  // ]);
 
   constructor(private authService: AuthService, private http: HttpClient) {}
 
   get places() {
     return this._places.asObservable();
+  }
+
+  fetchPlaces() {
+    // returns key of any name and value as PlaceData object
+    return this.http
+      .get<{ [key: string]: PlaceData }>(
+        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-place.json'
+      )
+      .pipe(
+        // map operator gets responseData and returns restructured data
+        map((resData) => {
+          console.log(resData);
+          // first convert the object to array
+          const places = [];
+          for (const key in resData) {
+            if (resData.hasOwnProperty(key)) {
+              places.push(
+                new Place(
+                  key,
+                  resData[key].title,
+                  resData[key].description,
+                  resData[key].imageUrl,
+                  resData[key].price,
+                  new Date(resData[key].availableFrom),
+                  new Date(resData[key].availableTo),
+                  resData[key].userId
+                )
+              );
+            }
+          }
+          return places;
+          //return []; // for faking case when there is no data
+        }),
+        tap((places) => {
+          // so that all the subscribers will get latest data
+          this._places.next(places);
+        })
+      );
   }
 
   getPlace(placeId: string) {
@@ -91,6 +139,7 @@ export class PlacesService {
         // gets data and returns new observation and will replace existing observable in the chain
         switchMap((responseData) => {
           generatedId = responseData.name;
+          // returning different observable *********************
           return this.places;
         }),
         // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription

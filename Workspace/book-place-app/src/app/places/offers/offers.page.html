@@ -22,7 +22,17 @@
   <ion-grid>
     <ion-row>
       <ion-col size="12" size-sm="8" offset-sm="2" class="ion-text-center">
-        <ion-list>
+        <!-- in case of loading -->
+        <div *ngIf="isLoading" class="ion-text-center">
+          <ion-spinner color="primary"></ion-spinner>
+        </div>
+        <!-- loading complete but no data -->
+        <div *ngIf="!isLoading && offers.length <= 0" class="ion-text-center">
+          <p>No offers found! Please create one first!</p>
+          <ion-button color="primary" routerLink="/places/tabs/offers/new">Offer New Place</ion-button>
+        </div>
+        <!-- loading complete with data -->
+        <ion-list *ngIf="!isLoading && offers.length > 0">
           <!-- to make the ion-item slideable -->
           <ion-item-sliding *ngFor="let offer of offers" #slidingItem>
             <!-- custom component -->
