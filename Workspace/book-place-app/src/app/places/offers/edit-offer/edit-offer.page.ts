@@ -15,6 +15,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
   loadedPlace: Place;
   form: FormGroup;
   placeSub: Subscription;
+  isLoading = false;
+  placeId: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -32,23 +34,26 @@ export class EditOfferPage implements OnInit, OnDestroy {
         return;
       }
 
+      this.placeId = paramMap.get('placeId');
+      this.isLoading = true;
       // this subscrition we need to manage
       this.placeSub = this.placesService
         .getPlace(paramMap.get('placeId'))
         .subscribe((place) => {
           this.loadedPlace = place;
+          // initialize form
+          this.form = new FormGroup({
+            title: new FormControl(this.loadedPlace.title, {
+              updateOn: 'blur',
+              validators: [Validators.required],
+            }),
+            description: new FormControl(this.loadedPlace.description, {
+              updateOn: 'blur',
+              validators: [Validators.required, Validators.maxLength(180)],
+            }),
+          });
+          this.isLoading = false;
         });
-      // initialize form
-      this.form = new FormGroup({
-        title: new FormControl(this.loadedPlace.title, {
-          updateOn: 'blur',
-          validators: [Validators.required],
-        }),
-        description: new FormControl(this.loadedPlace.description, {
-          updateOn: 'blur',
-          validators: [Validators.required, Validators.maxLength(180)],
-        }),
-      });
     });
   }
 

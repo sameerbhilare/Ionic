@@ -102,6 +102,24 @@ export class PlacesService {
 
   getPlace(placeId: string) {
     // returning a clone
+    return this.http
+      .get<PlaceData>(
+        `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places/${placeId}.json`
+      )
+      .pipe(
+        map((placeData) => {
+          return new Place(
+            placeId,
+            placeData.title,
+            placeData.description,
+            placeData.imageUrl,
+            placeData.price,
+            new Date(placeData.availableFrom),
+            new Date(placeData.availableTo),
+            placeData.userId
+          );
+        })
+      );
     return this._places.pipe(
       take(1),
       map((placesArr) => {
