@@ -1,10 +1,23 @@
+/* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@angular/core';
 import { Booking } from './booking.model';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { delay, take, tap, switchMap } from 'rxjs/operators';
+import { delay, take, tap, switchMap, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+
+interface BookingData {
+  bookFrom: string;
+  bookTo: string;
+  firstName: string;
+  lastName: string;
+  guestNumber: number;
+  placeId: string;
+  placeImage: string;
+  placeTitle: string;
+  userId: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -71,5 +84,38 @@ export class BookingService {
         );
       })
     );
+  }
+
+  fetchBookings() {
+    // fetch bookings for currently logged in user
+    return this.http
+      .get<{ [key: string]: BookingData }>(
+        `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${this.authService.userId}"`
+      )
+      .pipe(
+        map((bookingData) => {
+          const bookings = [];
+          for (const key in bookingData) {
+            if (bookingData.hasOwnProperty(key)) {
+              bookings.push(
+                new Booking(
+                  key,
+                  bookingData[key].placeId,
+                  bookingData[key].userId,
+                  bookingData[key].placeTitle,
+                  bookingData[key].placeImage,
+                  bookingData[key].firstName,
+                  bookingData[key].lastName,
+                  bookingData[key].guestNumber,
+                  new Date(bookingData[key].bookFrom),
+                  new Date(bookingData[key].bookTo)
+                )
+              );
+            }
+          }
+          return bookings;
+        }),
+        tap((bookings) => this._bookings.next(bookings))
+      );
   }
 }
