@@ -4,7 +4,7 @@
 import { Injectable } from '@angular/core';
 import { Place } from './place.model';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { delay, map, switchMap, take, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
@@ -178,6 +178,16 @@ export class PlacesService {
     return this._places.pipe(
       // only take the latest and dont set active subscription
       take(1),
+      // return places (either by fetching or alredy fetched)
+      switchMap((places) => {
+        if (!places || places.length <= 0) {
+          // fetch places if doesn't exist
+          return this.fetchPlaces();
+        } else {
+          return of(places);
+        }
+      }),
+      // here places are guaranteed to be present
       switchMap((places) => {
         // find updated place index
         const updatedPlaceIndex = places.findIndex((p) => p.id === placeId);
