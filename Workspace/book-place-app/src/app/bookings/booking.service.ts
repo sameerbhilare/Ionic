@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@angular/core';
@@ -75,15 +76,25 @@ export class BookingService {
   }
 
   cancelBooking(bookingId: string) {
-    return this._bookings.pipe(
-      take(1),
-      delay(1000),
-      tap((bookingsArr) => {
-        this._bookings.next(
-          bookingsArr.filter((booking) => booking.id !== bookingId)
-        );
-      })
-    );
+    // delete booking on server
+    return this.http
+      .delete(
+        `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings/${bookingId}.json"`
+      )
+      .pipe(
+        switchMap(() => {
+          // do nothing with the delete response, just return new observable of local list of bookings
+          return this.bookings;
+        }),
+        // just take one (latest) snapshot
+        take(1), // imp
+        // remove the booking from local array
+        tap((bookingsArr) => {
+          this._bookings.next(
+            bookingsArr.filter((booking) => booking.id !== bookingId)
+          );
+        })
+      );
   }
 
   fetchBookings() {
