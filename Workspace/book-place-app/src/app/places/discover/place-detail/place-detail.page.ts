@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   ActionSheetController,
+  AlertController,
   ModalController,
   NavController,
 } from '@ionic/angular';
@@ -22,6 +23,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
   loadedPlace: Place;
   placeSub: Subscription;
   isBookable = false;
+  isLoading = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,7 +33,8 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private actionSheetCtrl: ActionSheetController,
     private bookingService: BookingService,
     private loadingCtrl: LoadingController,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit() {
@@ -42,13 +45,36 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return;
       }
 
+      this.isLoading = true;
       // this subscrition we need to manage
       this.placeSub = this.placesService
         .getPlace(paramMap.get('placeId'))
-        .subscribe((place) => {
-          this.loadedPlace = place;
-          this.isBookable = place.userId !== this.authService.userId;
-        });
+        .subscribe(
+          (place) => {
+            this.loadedPlace = place;
+            this.isBookable = place.userId !== this.authService.userId;
+            this.isLoading = false;
+          },
+          (error) => {
+            // show alert
+            this.alertCtrl
+              .create({
+                header: 'An Error occurred!',
+                message: 'Place could not be fetched. Please try again later!',
+                buttons: [
+                  {
+                    text: 'Okay',
+                    handler: () => {
+                      this.navCtrl.navigateBack('/places/tabs/discover');
+                    },
+                  },
+                ],
+              })
+              .then((alertEl) => {
+                alertEl.present();
+              });
+          }
+        );
     });
   }
 
