@@ -79,7 +79,7 @@ export class BookingService {
     // delete booking on server
     return this.http
       .delete(
-        `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings/${bookingId}.json"`
+        `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings/${bookingId}.json`
       )
       .pipe(
         switchMap(() => {
