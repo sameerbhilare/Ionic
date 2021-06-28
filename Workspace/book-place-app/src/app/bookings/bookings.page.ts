@@ -1,8 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Booking } from './booking.model';
 import { BookingService } from './booking.service';
-import { IonItemSliding, LoadingController } from '@ionic/angular';
+import {
+  AlertController,
+  IonItemSliding,
+  LoadingController,
+} from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-bookings',
@@ -16,7 +21,9 @@ export class BookingsPage implements OnInit, OnDestroy {
 
   constructor(
     private bookingService: BookingService,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private alertCtrl: AlertController,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -41,11 +48,35 @@ export class BookingsPage implements OnInit, OnDestroy {
     });
     // show spinner
     await spinnerEl.present();
-    this.bookingService.cancelBooking(bookingId).subscribe(() => {
-      // dismiss the spinner
-      spinnerEl.dismiss();
-      console.log('Booking cancelled!', bookingId);
-    });
+    this.bookingService.cancelBooking(bookingId).subscribe(
+      () => {
+        // dismiss the spinner
+        spinnerEl.dismiss();
+        console.log('Booking cancelled!', bookingId);
+      },
+      (error) => {
+        // dismiss the spinner
+        spinnerEl.dismiss();
+        console.log('Booking cancellation Failed!', bookingId);
+        // show alert
+        this.alertCtrl
+          .create({
+            header: 'An Error occurred!',
+            message: 'Booking couldnot be cancelled. Please try again later!',
+            buttons: [
+              {
+                text: 'Okay',
+                handler: () => {
+                  this.router.navigateByUrl('/bookings');
+                },
+              },
+            ],
+          })
+          .then((alertEl) => {
+            alertEl.present();
+          });
+      }
+    );
   }
 
   ngOnDestroy() {
