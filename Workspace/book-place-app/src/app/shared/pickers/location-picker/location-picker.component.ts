@@ -55,10 +55,10 @@ export class LocationPickerComponent implements OnInit {
       .subscribe((staticMapImageUrl) => {
         pickedLocation.staticMapImageUrl = staticMapImageUrl;
         this.selectedLocationImage = staticMapImageUrl;
-        this.isLoading = false;
         // emit the location data
         this.locationPick.emit(pickedLocation);
         console.log('pickedLocation =>', pickedLocation);
+        this.isLoading = false;
       });
   }
 
