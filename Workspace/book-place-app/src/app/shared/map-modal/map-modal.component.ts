@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
@@ -13,8 +14,10 @@ import { ModalController } from '@ionic/angular';
   templateUrl: './map-modal.component.html',
   styleUrls: ['./map-modal.component.scss'],
 })
-export class MapModalComponent implements OnInit, AfterViewInit {
+export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('map') mapElementRef: ElementRef;
+  mapClickListner: any;
+  googleMaps: any;
 
   constructor(
     private modalCtrl: ModalController,
@@ -26,6 +29,7 @@ export class MapModalComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.getGoogleMaps()
       .then((googleMaps) => {
+        this.googleMaps = googleMaps;
         // got google maps
         const mapEl = this.mapElementRef.nativeElement;
         const map = new googleMaps.Map(mapEl, {
@@ -34,13 +38,13 @@ export class MapModalComponent implements OnInit, AfterViewInit {
         });
 
         // when map has been loaded on page. Listening only once
-        googleMaps.event.addListenerOnce(map, 'idle', () => {
+        this.googleMaps.event.addListenerOnce(map, 'idle', () => {
           // Renderer2 is class from Angular to interact with DOM
           this.renderer.addClass(mapEl, 'visible'); // adding 'visible' class to mapEl element
         });
 
         // to get location via click on the map
-        map.addListener('click', (event) => {
+        this.mapClickListner = map.addListener('click', (event) => {
           // get the coordinates
           const selectedCoords = {
             lat: event.latLng.lat(),
@@ -58,6 +62,13 @@ export class MapModalComponent implements OnInit, AfterViewInit {
 
   onCancel() {
     this.modalCtrl.dismiss();
+  }
+
+  ngOnDestroy() {
+    // clear the listener when modal is disissed to avoid memory leaks.
+    if (this.mapClickListner && this.googleMaps) {
+      this.googleMaps.event.removeListener(this.mapClickListner);
+    }
   }
 
   private getGoogleMaps(): Promise<any> {
