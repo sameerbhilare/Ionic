@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  positionstackAPIKey: '<get apikey from positionstack account>', // geocoding
+  mapquestAPIKey: '<get apikey from mapquest account>', // static map image
 };
 
 /*
