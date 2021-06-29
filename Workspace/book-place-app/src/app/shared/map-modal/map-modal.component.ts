@@ -38,6 +38,17 @@ export class MapModalComponent implements OnInit, AfterViewInit {
           // Renderer2 is class from Angular to interact with DOM
           this.renderer.addClass(mapEl, 'visible'); // adding 'visible' class to mapEl element
         });
+
+        // to get location via click on the map
+        map.addListener('click', (event) => {
+          // get the coordinates
+          const selectedCoords = {
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng(),
+          };
+          // dismiss the modal and pass the selected coordinates
+          this.modalCtrl.dismiss(selectedCoords);
+        });
       })
       .catch((err) => {
         // failed to get google maps
