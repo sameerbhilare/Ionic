@@ -1,9 +1,12 @@
+/* eslint-disable max-len */
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { PlaceLocation } from '../../../places/location.model';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-location-picker',
@@ -27,11 +30,27 @@ export class LocationPickerComponent implements OnInit {
       return;
     }
 
-    this.getAddress(resultData.data.lat, resultData.data.lng).subscribe(
-      (address) => {
-        console.log('Address => ', address);
-      }
-    );
+    const pickedLocation: PlaceLocation = {
+      lat: resultData.data.lat,
+      lng: resultData.data.lng,
+      address: null,
+      staticMapImageUrl: null,
+    };
+
+    this.getAddress(resultData.data.lat, resultData.data.lng)
+      .pipe(
+        switchMap((address) => {
+          console.log('Address => ', address);
+          pickedLocation.address = address;
+          return of(
+            this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14)
+          );
+        })
+      )
+      .subscribe((staticMapImageUrl) => {
+        pickedLocation.staticMapImageUrl = staticMapImageUrl;
+        console.log('pickedLocation =>', pickedLocation);
+      });
   }
 
   // get address from google maps for given coordinates
@@ -42,7 +61,7 @@ export class LocationPickerComponent implements OnInit {
 
     return this.http
       .get<any>(
-        `http://api.positionstack.com/v1/reverse?access_key=${environment.positionStackAPIKey}&query=${lat},${lng}`,
+        `http://api.positionstack.com/v1/reverse?access_key=${environment.positionstackAPIKey}&query=${lat},${lng}`,
         {
           headers,
         }
@@ -70,5 +89,11 @@ export class LocationPickerComponent implements OnInit {
           return geoData.data[0].label;
         })
       );
+  }
+
+  // get map image for given coordinates
+  private getMapImage(lat: number, lng: number, zoom: number) {
+    return `https://open.mapquestapi.com/staticmap/v4/getmap?key=${environment.mapquestAPIKey}
+            &size=500,300&zoom=${zoom}&center=${lat},${lng}`;
   }
 }
