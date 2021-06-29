@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 import { BookingService } from '../../../bookings/booking.service';
 import { LoadingController } from '@ionic/angular';
 import { AuthService } from '../../../auth/auth.service';
+import { MapModalComponent } from '../../../shared/map-modal/map-modal.component';
 
 @Component({
   selector: 'app-place-detail',
@@ -167,6 +168,28 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
           console.log('Booked!');
         });
     }
+  }
+
+  async onShowFullMap() {
+    // create map modal modal
+    const modal = await this.modalCtrl.create({
+      component: MapModalComponent,
+      // properties passed to the MapModalComponent for customizing map view
+      componentProps: {
+        center: {
+          lat: this.loadedPlace.location.lat,
+          lng: this.loadedPlace.location.lng,
+        },
+        selectable: false,
+        closeButtonText: 'Close',
+        title: this.loadedPlace.location.address,
+      },
+    });
+    // present modal
+    await modal.present();
+
+    // on dismiss
+    const resultData = await modal.onWillDismiss();
   }
 
   ngOnDestroy() {
