@@ -52,14 +52,20 @@ export class LocationPickerComponent implements OnInit {
           );
         })
       )
-      .subscribe((staticMapImageUrl) => {
-        pickedLocation.staticMapImageUrl = staticMapImageUrl;
-        this.selectedLocationImage = staticMapImageUrl;
-        // emit the location data
-        this.locationPick.emit(pickedLocation);
-        console.log('pickedLocation =>', pickedLocation);
-        this.isLoading = false;
-      });
+      .subscribe(
+        (staticMapImageUrl) => {
+          pickedLocation.staticMapImageUrl = staticMapImageUrl;
+          this.selectedLocationImage = staticMapImageUrl;
+          // emit the location data
+          this.locationPick.emit(pickedLocation);
+          console.log('pickedLocation =>', pickedLocation);
+          this.isLoading = false;
+        },
+        (error) => {
+          // in case of errors
+          this.isLoading = false;
+        }
+      );
   }
 
   // get address from google maps for given coordinates
