@@ -3,10 +3,13 @@
     color="primary"
     *ngIf="isLoading"></ion-spinner>
 
+  <!-- showing the static map image preview and making the image clickable -->
   <ion-img
+    role="button"
     class="location-image"
     [src]="selectedLocationImage"
-    *ngIf="selectedLocationImage && !isLoading"></ion-img>
+    *ngIf="selectedLocationImage && !isLoading"
+    (click)="onPickLocation()"></ion-img>
 
   <ion-button
     color="primary"
