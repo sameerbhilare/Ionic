@@ -18,7 +18,7 @@ import { ModalController } from '@ionic/angular';
 export class MapModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('map') mapElementRef: ElementRef;
 
-  @Input() center = { lat: -34.397, lng: 150.644 }; // default center
+  @Input() center = { lat: 17.926411, lng: 73.7622171 }; // default center - Panchgani
   @Input() selectable = true;
   @Input() closeButtonText = 'Cancel';
   @Input() title = 'Pick Location';
