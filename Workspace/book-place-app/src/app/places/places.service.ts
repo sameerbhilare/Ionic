@@ -140,42 +140,51 @@ export class PlacesService {
     dateTo: Date,
     location: PlaceLocation
   ) {
-    const newPlace = new Place(
-      Math.random().toString(),
-      title,
-      description,
-      'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
-      price,
-      dateFrom,
-      dateTo,
-      this.authService.userId,
-      location
-    );
-
     let generatedId: string;
-    return this.http
-      .post<{ name: string }>(
-        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json',
-        // copy all properties but set id to null as firebase will set the id while saving
-        { ...newPlace, id: null }
-      )
-      .pipe(
-        // gets data and returns new observation and will replace existing observable in the chain
-        switchMap((responseData) => {
-          generatedId = responseData.name;
-          // returning different observable *********************
-          return this.places;
-        }),
-        // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
-        take(1),
-        // tap will allow us to perform some other action from this chain and wont affect the chain
-        tap((placesArr) => {
-          // using firebase generated id
-          newPlace.id = generatedId;
-          // .cancat() is default array method which adds an item to the array and returns a new array
-          this._places.next(placesArr.concat(newPlace)); // emit the new array
-        })
-      );
+    let newPlace: Place;
+    return this.authService.userId.pipe(
+      // take latest snapshot only
+      take(1),
+      // get userId and create booking and return new observable to POST the booking
+      switchMap((userId) => {
+        if (!userId) {
+          throw new Error('No UserId found!');
+        }
+
+        newPlace = new Place(
+          Math.random().toString(),
+          title,
+          description,
+          'https://lonelyplanetimages.imgix.net/mastheads/GettyImages-538096543_medium.jpg?sharp=10&vib=20&w=1200',
+          price,
+          dateFrom,
+          dateTo,
+          userId,
+          location
+        );
+
+        return this.http.post<{ name: string }>(
+          'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json',
+          // copy all properties but set id to null as firebase will set the id while saving
+          { ...newPlace, id: null }
+        );
+      }),
+      // gets data and returns new observation and will replace existing observable in the chain
+      switchMap((responseData) => {
+        generatedId = responseData.name;
+        // returning different observable *********************
+        return this.places;
+      }),
+      // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
+      take(1),
+      // tap will allow us to perform some other action from this chain and wont affect the chain
+      tap((placesArr) => {
+        // using firebase generated id
+        newPlace.id = generatedId;
+        // .cancat() is default array method which adds an item to the array and returns a new array
+        this._places.next(placesArr.concat(newPlace)); // emit the new array
+      })
+    );
   }
 
   updatePlace(placeId: string, title: string, description: string) {

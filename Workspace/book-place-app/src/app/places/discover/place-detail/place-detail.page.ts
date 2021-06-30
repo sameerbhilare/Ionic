@@ -14,6 +14,7 @@ import { BookingService } from '../../../bookings/booking.service';
 import { LoadingController } from '@ionic/angular';
 import { AuthService } from '../../../auth/auth.service';
 import { MapModalComponent } from '../../../shared/map-modal/map-modal.component';
+import { take, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-place-detail',
@@ -46,14 +47,23 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         return;
       }
 
+      let fetchedUserId: string;
       this.isLoading = true;
-      // this subscrition we need to manage
-      this.placeSub = this.placesService
-        .getPlace(paramMap.get('placeId'))
+      this.authService.userId
+        .pipe(
+          switchMap((userId) => {
+            if (!userId) {
+              throw new Error('No UserId found!');
+            }
+            fetchedUserId = userId;
+
+            return this.placesService.getPlace(paramMap.get('placeId'));
+          })
+        )
         .subscribe(
           (place) => {
             this.loadedPlace = place;
-            this.isBookable = place.userId !== this.authService.userId;
+            this.isBookable = place.userId !== fetchedUserId;
             this.isLoading = false;
           },
           (error) => {

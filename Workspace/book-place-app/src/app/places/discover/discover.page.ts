@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { Place } from '../place.model';
 import { PlacesService } from '../places.service';
 import { AuthService } from '../../auth/auth.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-discover',
@@ -48,10 +49,15 @@ export class DiscoverPage implements OnInit, OnDestroy {
      about which custom event data does custom event object will hold.
   */
   onFilterUpdate(filter: string) {
-    const isShown = (place) =>
-      filter === 'all' || place.userId !== this.authService.userId;
-    this.relevantPlaces = this.loadedPlaces.filter(isShown);
-    this.filter = filter;
+    this.authService.userId.pipe(take(1)).subscribe((userId) => {
+      if (!userId) {
+        return;
+      }
+
+      const isShown = (place) => filter === 'all' || place.userId !== userId;
+      this.relevantPlaces = this.loadedPlaces.filter(isShown);
+      this.filter = filter;
+    });
   }
 
   ngOnDestroy() {
