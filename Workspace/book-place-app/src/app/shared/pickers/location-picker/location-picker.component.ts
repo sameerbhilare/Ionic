@@ -151,7 +151,13 @@ export class LocationPickerComponent implements OnInit {
   private getAddress(lat: number, lng: number) {
     // cors header required by positionstack
     const headers = new HttpHeaders();
-    headers.set('Access-Control-Allow-Origin', 'http://localhost:8100'); // required for positionstack
+    headers.set('Access-Control-Allow-Origin', '*'); // required for positionstack
+    headers.set('Access-Control-Allow-Credentials', 'true'); // required for positionstack
+    headers.set(
+      'Access-Control-Allow-Headers',
+      'X-Requested-With,content-type'
+    );
+    headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
 
     return this.http
       .get<any>(
