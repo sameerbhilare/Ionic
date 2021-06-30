@@ -5,6 +5,7 @@ import {
   EventEmitter,
   ViewChild,
   ElementRef,
+  Input,
 } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Platform } from '@ionic/angular';
@@ -22,6 +23,7 @@ import {
 export class ImagePickerComponent implements OnInit {
   @Output() imagePick = new EventEmitter<string | File>(); // base64 string representation of the image
   @ViewChild('filePicker') filePickerRef: ElementRef<HTMLInputElement>;
+  @Input() showPreview = false;
   selectedImage: string;
   useFilePicker = false;
 
