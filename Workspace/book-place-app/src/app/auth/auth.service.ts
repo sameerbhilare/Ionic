@@ -161,6 +161,8 @@ export class AuthService {
       tokenExpirationDate,
     });
     // storage needs to string data only
+    // for browser/pwa app - it will store in localstorage
+    // for native app - it will store in decive storage
     Storage.set({ key: 'AuthData', value: userData });
   }
 }
