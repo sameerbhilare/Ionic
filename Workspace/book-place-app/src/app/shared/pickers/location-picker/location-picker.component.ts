@@ -1,11 +1,17 @@
 /* eslint-disable max-len */
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  AlertController,
+  ModalController,
+} from '@ionic/angular';
+import { Capacitor } from '@capacitor/core';
+import { Geolocation, Position } from '@capacitor/geolocation';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
 import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { PlaceLocation } from '../../../places/location.model';
+import { PlaceLocation, Coordinates } from '../../../places/location.model';
 import { of } from 'rxjs';
 
 @Component({
@@ -18,11 +24,69 @@ export class LocationPickerComponent implements OnInit {
   selectedLocationImage: string;
   isLoading = false;
 
-  constructor(private modalCtrl: ModalController, private http: HttpClient) {}
+  constructor(
+    private modalCtrl: ModalController,
+    private http: HttpClient,
+    private actionSheetCtrl: ActionSheetController,
+    private alterCtrl: AlertController
+  ) {}
 
   ngOnInit() {}
 
   async onPickLocation() {
+    // create action sheet
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Please Choose',
+      buttons: [
+        {
+          text: 'Auto-Locate',
+          handler: () => {
+            this.autoLocateUser();
+          },
+        },
+        {
+          text: 'Pick on Map',
+          handler: () => {
+            this.openMap();
+          },
+        },
+        { text: 'Cancel', role: 'cancel' },
+      ],
+    });
+
+    // present the action sheet
+    await actionSheet.present();
+  }
+
+  private async showErrorAlert() {
+    const alert = await this.alterCtrl.create({
+      header: 'Could not fetch location!',
+      message: 'Please use the Pick on Map option.',
+    });
+    await alert.present();
+  }
+
+  private async autoLocateUser() {
+    if (!Capacitor.isPluginAvailable('Geolocation')) {
+      // Geolocation feature not available, may be due to the platform not supporting it or permisson denied.
+      this.showErrorAlert();
+      return;
+    }
+
+    // it means Geolocation feature available
+    try {
+      // Gets the current GPS location of the device
+      const geoPosition: Position = await Geolocation.getCurrentPosition();
+      const coordinates: Coordinates = {
+        lat: geoPosition.coords.latitude,
+        lng: geoPosition.coords.longitude,
+      };
+    } catch (error) {
+      this.showErrorAlert();
+    }
+  }
+
+  private async openMap() {
     // create modal
     const modal = await this.modalCtrl.create({ component: MapModalComponent });
     // present the modal
@@ -69,7 +133,7 @@ export class LocationPickerComponent implements OnInit {
   }
 
   // get address from google maps for given coordinates
-  getAddress(lat: number, lng: number) {
+  private getAddress(lat: number, lng: number) {
     // cors header required by positionstack
     const headers = new HttpHeaders();
     headers.set('Access-Control-Allow-Origin', 'http://localhost:8100'); // required for positionstack
