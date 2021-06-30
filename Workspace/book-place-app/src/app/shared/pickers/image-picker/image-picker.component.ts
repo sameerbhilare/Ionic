@@ -19,8 +19,10 @@ export class ImagePickerComponent implements OnInit {
   ngOnInit() {}
 
   async onPickImage() {
+    console.log('onPickImage');
     // check if Camera feature is available
     if (!Capacitor.isPluginAvailable('Camera')) {
+      console.log('Camera Plugin not available');
       return;
     }
 
@@ -33,18 +35,19 @@ export class ImagePickerComponent implements OnInit {
         source: CameraSource.Prompt,
         correctOrientation: true,
         // choose appropriate dimensions
-        height: 320,
-        width: 200,
+        width: 600,
+        //height: 320,
         // means that the image is encoded into a string which we then can convert to a file if we want to, or just use like that.
         resultType: CameraResultType.Base64,
       });
 
       // set the image base64 representation
       this.selectedImage = photo.base64String;
+      console.log('Camera Plugin selectedImage', this.selectedImage);
       // emit event
       this.imagePick.emit(photo.base64String);
     } catch (error) {
-      console.log(error);
+      console.log('Camera Plugin error', error);
       return false;
     }
   }
