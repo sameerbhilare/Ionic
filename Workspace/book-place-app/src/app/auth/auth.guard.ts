@@ -9,9 +9,9 @@ import {
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
 } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { AuthService } from './auth.service';
-import { take, tap } from 'rxjs/operators';
+import { take, tap, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -55,6 +55,16 @@ export class AuthGuard implements CanLoad, CanActivate {
   private isAllowed() {
     return this.authService.userIsAuthenticated.pipe(
       take(1),
+      // check for autologin
+      switchMap((isAuthenticated) => {
+        if (!isAuthenticated) {
+          // try autologin
+          return this.authService.autoLogin();
+        } else {
+          // forward the isAuthenticated info
+          return of(isAuthenticated);
+        }
+      }),
       tap((isAuthenticated) => {
         if (!isAuthenticated) {
           // if user is not authenticated, navigate the user to the Login page
