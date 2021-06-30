@@ -11,6 +11,7 @@ import {
 } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { take, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -35,11 +36,7 @@ export class AuthGuard implements CanLoad, CanActivate {
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree> {
     console.log('AuthGuard - canLoad');
-    if (!this.authService.userIsAuthenticated) {
-      // if user is not authenticated, navigate the user to the Login page
-      this.router.navigate(['/auth']);
-    }
-    return this.authService.userIsAuthenticated;
+    return this.isAllowed();
   }
 
   // canActivate() will be used to each time the page is accessed
@@ -52,10 +49,18 @@ export class AuthGuard implements CanLoad, CanActivate {
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree> {
     console.log('AuthGuard - canActivate');
-    if (!this.authService.userIsAuthenticated) {
-      // if user is not authenticated, navigate the user to the Login page
-      this.router.navigate(['/auth']);
-    }
-    return this.authService.userIsAuthenticated;
+    return this.isAllowed();
+  }
+
+  private isAllowed() {
+    return this.authService.userIsAuthenticated.pipe(
+      take(1),
+      tap((isAuthenticated) => {
+        if (!isAuthenticated) {
+          // if user is not authenticated, navigate the user to the Login page
+          this.router.navigate(['/auth']);
+        }
+      })
+    );
   }
 }
