@@ -49,7 +49,7 @@ export class ImagePickerComponent implements OnInit {
   async onPickImage() {
     console.log('onPickImage');
     // check if Camera feature is available or if useFilePicker is true
-    if (!Capacitor.isPluginAvailable('Camera') || this.useFilePicker) {
+    if (!Capacitor.isPluginAvailable('Camera')) {
       console.log('Camera Plugin not available');
       // this will open the file picker
       this.filePickerRef.nativeElement.click();
@@ -78,6 +78,10 @@ export class ImagePickerComponent implements OnInit {
       this.imagePick.emit(photo.base64String);
     } catch (error) {
       console.log('Camera Plugin error', error);
+      if (this.useFilePicker) {
+        // this will open the file picker
+        this.filePickerRef.nativeElement.click();
+      }
       return false;
     }
   }
