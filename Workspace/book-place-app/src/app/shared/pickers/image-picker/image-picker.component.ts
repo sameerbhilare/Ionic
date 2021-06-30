@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
+import { Platform } from '@ionic/angular';
 import {
   Camera,
   CameraResultType,
@@ -14,9 +15,19 @@ import {
 export class ImagePickerComponent implements OnInit {
   @Output() imagePick = new EventEmitter<string>(); // base64 string representation of the image
   selectedImage: string;
-  constructor() {}
 
-  ngOnInit() {}
+  constructor(private platform: Platform) {}
+
+  ngOnInit() {
+    // hybrid is an indicator for whether we're really running the app on a native mobile device or not.
+    // For Desktop (even if you use mobile simulator) - hybrid = false
+    // For Real Mobile - hybrid = true
+    console.log('Hybrid', this.platform.is('hybrid'));
+    console.log('Mobile', this.platform.is('mobile'));
+    console.log('iOS', this.platform.is('ios'));
+    console.log('Android', this.platform.is('android'));
+    console.log('Desktop', this.platform.is('desktop'));
+  }
 
   async onPickImage() {
     console.log('onPickImage');
