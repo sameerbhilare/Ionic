@@ -1,7 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
+import { Capacitor } from '@capacitor/core';
+import { Storage } from '@capacitor/storage';
+import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { User } from './user.model';
 import { map, tap } from 'rxjs/operators';
@@ -88,5 +90,22 @@ export class AuthService {
         expirationTime
       )
     );
+    // stora data in localstorate/device storage
+    this.storeAuthData(
+      authData.localId,
+      authData.idToken,
+      expirationTime.toISOString()
+    );
+  }
+
+  // storing imp data via Capacitor/Storage
+  private storeAuthData(
+    userId: string,
+    token: string,
+    tokenExpirationDate: string
+  ) {
+    const userData = JSON.stringify({ userId, token, tokenExpirationDate });
+    // storage needs to string data only
+    Storage.set({ key: 'AuthData', value: userData });
   }
 }
