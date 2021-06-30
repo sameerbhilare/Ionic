@@ -80,4 +80,6 @@ export class NewOfferPage implements OnInit {
       location: pickedLocation,
     });
   }
+
+  onImagePicked(imageString: string) {}
 }
