@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { User } from './user.model';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 export interface AuthResponseData {
   idToken: string;
@@ -42,30 +42,51 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   signup(email: string, password: string) {
-    return this.http.post<AuthResponseData>(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`,
-      {
-        email,
-        password,
-        returnSecureToken: true,
-      }
-    );
+    return this.http
+      .post<AuthResponseData>(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`,
+        {
+          email,
+          password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(tap(this.setUserData.bind(this))); // this inside of setUserData should refer to AuthService class and not to tap function
   }
 
   login(email: string, password: string) {
     //this._userIsAuthenticated = true;
-    return this.http.post<AuthResponseData>(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`,
-      {
-        email,
-        password,
-        returnSecureToken: true,
-      }
-    );
+    return this.http
+      .post<AuthResponseData>(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`,
+        {
+          email,
+          password,
+          returnSecureToken: true,
+        }
+      )
+      .pipe(tap(this.setUserData.bind(this))); // this inside of setUserData should refer to AuthService class and not to tap function
   }
 
   logout() {
-    // emit null
+    // emit user logout
     this._user.next(null);
+  }
+
+  private setUserData(authData: AuthResponseData) {
+    // calculate expiration time
+    // what we get in 'expiresIn' is 'The number of seconds in which the ID token expires.'
+    const expirationTime: Date = new Date(
+      new Date().getTime() + +authData.expiresIn * 1000
+    );
+    // emit user login
+    this._user.next(
+      new User(
+        authData.localId,
+        authData.email,
+        authData.idToken,
+        expirationTime
+      )
+    );
   }
 }
