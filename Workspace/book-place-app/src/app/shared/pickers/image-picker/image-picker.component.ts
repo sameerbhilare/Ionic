@@ -87,6 +87,19 @@ export class ImagePickerComponent implements OnInit {
     via code "this.filePickerRef.nativeElement.click();" from above method onPickImage() when filepicker is true
   */
   onFileChosen(event: Event) {
-    console.log(event);
+    const pickedFile = (event.target as HTMLInputElement).files[0];
+    if (!pickedFile) {
+      return;
+    }
+
+    // convert to base64 string.
+    const fileReader = new FileReader();
+    // wait till fileReader.readAsDataURL() function finishes, hence registering for load event
+    fileReader.onload = () => {
+      const datataUrl = fileReader.result.toString();
+      this.selectedImage = datataUrl;
+    };
+    // convert to base64 string. This will set "fileReader.result" once finishes
+    fileReader.readAsDataURL(pickedFile);
   }
 }
