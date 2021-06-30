@@ -1,8 +1,7 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable no-underscore-dangle */
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Capacitor } from '@capacitor/core';
 import { Storage } from '@capacitor/storage';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, from } from 'rxjs';
@@ -20,8 +19,9 @@ export interface AuthResponseData {
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
   private _user = new BehaviorSubject<User>(null);
+  private activeLogoutTimer: any;
 
   get userIsAuthenticated() {
     // whether user is authenticated.
@@ -71,15 +71,6 @@ export class AuthService {
       .pipe(tap(this.setUserData.bind(this))); // this inside of setUserData should refer to AuthService class and not to tap function
   }
 
-  logout() {
-    // emit user logout
-    this._user.next(null);
-
-    // clear storage data (localstorage/device storage)
-    //Storage.clear(); // clears all data
-    Storage.remove({ key: 'AuthData' }); // clear specific data
-  }
-
   // finds Auth data in storage and if it finds it and is valid, then automaticaly logs user in.
   autoLogin() {
     // from operator converts a Promise into an Observable
@@ -118,6 +109,8 @@ export class AuthService {
       tap((user) => {
         if (user) {
           this._user.next(user);
+          // set autologout
+          this.autoLogout(user.tokenDuration);
         }
       }),
       // to return true or false
@@ -127,21 +120,53 @@ export class AuthService {
     );
   }
 
+  logout() {
+    if (this.activeLogoutTimer) {
+      // clear existing timer
+      clearTimeout(this.activeLogoutTimer);
+    }
+    // emit user logout
+    this._user.next(null);
+
+    // clear storage data (localstorage/device storage)
+    //Storage.clear(); // clears all data
+    Storage.remove({ key: 'AuthData' }); // clear specific data
+  }
+
+  ngOnDestroy() {
+    if (this.activeLogoutTimer) {
+      // clear existing timer
+      clearTimeout(this.activeLogoutTimer);
+    }
+  }
+
+  // auto logout after the expiration duration is reached
+  private autoLogout(duration: number) {
+    if (this.activeLogoutTimer) {
+      // clear existing timer
+      clearTimeout(this.activeLogoutTimer);
+    }
+    this.activeLogoutTimer = setTimeout(() => {
+      this.logout();
+    }, duration);
+  }
+
   private setUserData(authData: AuthResponseData) {
     // calculate expiration time
     // what we get in 'expiresIn' is 'The number of seconds in which the ID token expires.'
     const expirationTime: Date = new Date(
       new Date().getTime() + +authData.expiresIn * 1000
     );
-    // emit user login
-    this._user.next(
-      new User(
-        authData.localId,
-        authData.email,
-        authData.idToken,
-        expirationTime
-      )
+    const user = new User(
+      authData.localId,
+      authData.email,
+      authData.idToken,
+      expirationTime
     );
+    // emit user login
+    this._user.next(user);
+    // set autologout
+    this.autoLogout(user.tokenDuration);
     // stora data in localstorate/device storage
     this.storeAuthData(
       authData.localId,
