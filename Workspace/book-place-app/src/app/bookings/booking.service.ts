@@ -44,47 +44,45 @@ export class BookingService {
   ) {
     let generatedId: string;
     let newBooking: Booking;
-    this.authService.userId
-      .pipe(
-        // take latest snapshot only
-        take(1),
-        // get userId and create booking and return new observable to POST the booking
-        switchMap((userId) => {
-          if (!userId) {
-            throw Error('No UserId found!');
-          }
+    return this.authService.userId.pipe(
+      // take latest snapshot only
+      take(1),
+      // get userId and create booking and return new observable to POST the booking
+      switchMap((userId) => {
+        if (!userId) {
+          throw new Error('No UserId found!');
+        }
 
-          newBooking = new Booking(
-            Math.random().toString(),
-            placeId,
-            userId,
-            placeTitle,
-            placeImage,
-            firstName,
-            lastName,
-            guestNumber,
-            dateFrom,
-            dateTo
-          );
+        newBooking = new Booking(
+          Math.random().toString(),
+          placeId,
+          userId,
+          placeTitle,
+          placeImage,
+          firstName,
+          lastName,
+          guestNumber,
+          dateFrom,
+          dateTo
+        );
 
-          return this.http.post<{ name: string }>(
-            'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json',
-            { ...newBooking, id: null }
-          );
-        }),
-        // get POST response and get generatedId and return new observable of bookings
-        switchMap((resData) => {
-          generatedId = resData.name;
-          return this.bookings; //observable
-        }),
-        // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
-        take(1),
-        tap((bookings) => {
-          newBooking.id = generatedId;
-          this._bookings.next(bookings.concat(newBooking));
-        })
-      )
-      .subscribe();
+        return this.http.post<{ name: string }>(
+          'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json',
+          { ...newBooking, id: null }
+        );
+      }),
+      // get POST response and get generatedId and return new observable of bookings
+      switchMap((resData) => {
+        generatedId = resData.name;
+        return this.bookings; //observable
+      }),
+      // take(1) => take only one occurence of the event(so latest snapshot) and then cancel the subscription
+      take(1),
+      tap((bookings) => {
+        newBooking.id = generatedId;
+        this._bookings.next(bookings.concat(newBooking));
+      })
+    );
   }
 
   cancelBooking(bookingId: string) {
