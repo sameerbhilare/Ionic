@@ -62,6 +62,7 @@ export class LocationPickerComponent implements OnInit {
     const alert = await this.alterCtrl.create({
       header: 'Could not fetch location!',
       message: 'Please use the Pick on Map option.',
+      buttons: ['Okay'],
     });
     await alert.present();
   }
@@ -75,13 +76,18 @@ export class LocationPickerComponent implements OnInit {
 
     // it means Geolocation feature available
     try {
+      this.isLoading = true;
       // Gets the current GPS location of the device
       const geoPosition: Position = await Geolocation.getCurrentPosition();
       const coordinates: Coordinates = {
         lat: geoPosition.coords.latitude,
         lng: geoPosition.coords.longitude,
       };
+      // create place
+      this.createPlace(coordinates.lat, coordinates.lng);
+      this.isLoading = false;
     } catch (error) {
+      this.isLoading = false;
       this.showErrorAlert();
     }
   }
@@ -98,15 +104,23 @@ export class LocationPickerComponent implements OnInit {
       return;
     }
 
-    const pickedLocation: PlaceLocation = {
+    const coordinates: Coordinates = {
       lat: resultData.data.lat,
       lng: resultData.data.lng,
+    };
+    this.createPlace(coordinates.lat, coordinates.lng);
+  }
+
+  private createPlace(lat: number, lng: number) {
+    const pickedLocation: PlaceLocation = {
+      lat,
+      lng,
       address: null,
       staticMapImageUrl: null,
     };
 
     this.isLoading = true;
-    this.getAddress(resultData.data.lat, resultData.data.lng)
+    this.getAddress(lat, lng)
       .pipe(
         switchMap((address) => {
           console.log('Address => ', address);
