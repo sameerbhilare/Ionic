@@ -42,26 +42,37 @@ export class BookingService {
     dateFrom: Date,
     dateTo: Date
   ) {
-    const newBooking = new Booking(
-      Math.random().toString(),
-      placeId,
-      this.authService.userId,
-      placeTitle,
-      placeImage,
-      firstName,
-      lastName,
-      guestNumber,
-      dateFrom,
-      dateTo
-    );
-
     let generatedId: string;
-    return this.http
-      .post<{ name: string }>(
-        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json',
-        { ...newBooking, id: null }
-      )
+    let newBooking: Booking;
+    this.authService.userId
       .pipe(
+        // take latest snapshot only
+        take(1),
+        // get userId and create booking and return new observable to POST the booking
+        switchMap((userId) => {
+          if (!userId) {
+            throw Error('No UserId found!');
+          }
+
+          newBooking = new Booking(
+            Math.random().toString(),
+            placeId,
+            userId,
+            placeTitle,
+            placeImage,
+            firstName,
+            lastName,
+            guestNumber,
+            dateFrom,
+            dateTo
+          );
+
+          return this.http.post<{ name: string }>(
+            'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json',
+            { ...newBooking, id: null }
+          );
+        }),
+        // get POST response and get generatedId and return new observable of bookings
         switchMap((resData) => {
           generatedId = resData.name;
           return this.bookings; //observable
@@ -72,7 +83,8 @@ export class BookingService {
           newBooking.id = generatedId;
           this._bookings.next(bookings.concat(newBooking));
         })
-      );
+      )
+      .subscribe();
   }
 
   cancelBooking(bookingId: string) {
