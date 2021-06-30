@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   positionstackAPIKey: '<get apikey from positionstack account>', // geocoding
   mapquestAPIKey: '<get apikey from mapquest account>', // static map image
+  firebaseAPIKey: '<get apikey from Firebase account>', // Firebase API Key
 };
 
 /*
