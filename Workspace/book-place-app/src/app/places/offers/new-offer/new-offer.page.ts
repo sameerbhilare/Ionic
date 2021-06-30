@@ -69,7 +69,7 @@ export class NewOfferPage implements OnInit {
   }
 
   async onCreateOffer() {
-    if (!this.form.valid) {
+    if (!this.form.valid || !this.form.get('image').value) {
       return;
     }
 
