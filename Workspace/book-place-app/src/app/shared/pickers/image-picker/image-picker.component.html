@@ -22,4 +22,9 @@
     Instead we want to click it for the user when the user clicks 'Take Picture'
     when the app runs on a device where we can't access the camera.
 -->
-<input type="file" *ngIf="useFilePicker" #filePicker (change)="onFileChosen($event)" accept="image/jpeg, image/jpg">
+<input
+  type="file"
+  *ngIf="useFilePicker"
+  #filePicker
+  (change)="onFileChosen($event)"
+  accept="image/jpeg">
