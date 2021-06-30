@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from './auth.service';
+import { AuthResponseData, AuthService } from './auth.service';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AlertController, LoadingController } from '@ionic/angular';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
@@ -31,9 +32,18 @@ export class AuthPage implements OnInit {
     });
     // show spinner
     await spinnerEl.present();
-    this.authService.login();
-    // send request to signup service
-    this.authService.signup(email, password).subscribe(
+
+    let authObs: Observable<AuthResponseData>;
+    if (this.authMode === 'login') {
+      // send login request
+      authObs = this.authService.login(email, password);
+    } else {
+      // send request to signup service
+      authObs = this.authService.signup(email, password);
+    }
+
+    // subscribe
+    authObs.subscribe(
       (resData) => {
         console.log(resData);
         this.isLoading = false;
@@ -49,6 +59,10 @@ export class AuthPage implements OnInit {
         let message = 'Could not sign you up, please try again later!';
         if (errCode === 'EMAIL_EXISTS') {
           message = 'This email address already exists!';
+        } else if (errCode === 'EMAIL_NOT_FOUND') {
+          message = 'Invalid email or password!';
+        } else if (errCode === 'INVALID_PASSWORD') {
+          message = 'Invalid email or password!';
         }
         this.showAlert(message);
       }
@@ -62,14 +76,7 @@ export class AuthPage implements OnInit {
 
     const email = form.value.email;
     const password = form.value.password;
-
     this.authenticate(email, password);
-
-    // if (this.authMode === 'login') {
-    //   // send request to login service
-    // } else {
-    //   // send request to signup service
-    // }
   }
 
   // toggle auth mode - login or signup
