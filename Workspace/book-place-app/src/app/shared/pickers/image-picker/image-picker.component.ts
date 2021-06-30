@@ -20,7 +20,7 @@ import {
   styleUrls: ['./image-picker.component.scss'],
 })
 export class ImagePickerComponent implements OnInit {
-  @Output() imagePick = new EventEmitter<string>(); // base64 string representation of the image
+  @Output() imagePick = new EventEmitter<string | File>(); // base64 string representation of the image
   @ViewChild('filePicker') filePickerRef: ElementRef<HTMLInputElement>;
   selectedImage: string;
   useFilePicker = false;
@@ -98,6 +98,9 @@ export class ImagePickerComponent implements OnInit {
     fileReader.onload = () => {
       const datataUrl = fileReader.result.toString();
       this.selectedImage = datataUrl;
+
+      // emit the pickedfile as it is
+      this.imagePick.emit(pickedFile);
     };
     // convert to base64 string. This will set "fileReader.result" once finishes
     fileReader.readAsDataURL(pickedFile);
