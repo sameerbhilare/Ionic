@@ -1,16 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from './auth/auth.service';
 import { Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Platform } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
+  private userIsAuthenticatedSub: Subscription;
+  private previousAuthState = false;
+
   constructor(
     private platform: Platform,
     private authService: AuthService,
@@ -31,9 +35,24 @@ export class AppComponent {
     });
   }
 
+  ngOnInit() {
+    this.userIsAuthenticatedSub =
+      this.authService.userIsAuthenticated.subscribe((isAuthenticated) => {
+        // this.previousAuthState is required bcz this code runs faster AuthGuard code
+        if (!isAuthenticated && this.previousAuthState !== isAuthenticated) {
+          this.router.navigateByUrl('/auth');
+        }
+        this.previousAuthState = isAuthenticated;
+      });
+  }
+
   onLogout() {
-    console.log('logout');
     this.authService.logout();
-    this.router.navigateByUrl('/auth');
+  }
+
+  ngOnDestroy() {
+    if (this.userIsAuthenticatedSub) {
+      this.userIsAuthenticatedSub.unsubscribe();
+    }
   }
 }

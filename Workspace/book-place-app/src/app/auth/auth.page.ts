@@ -77,6 +77,8 @@ export class AuthPage implements OnInit {
     const email = form.value.email;
     const password = form.value.password;
     this.authenticate(email, password);
+
+    form.reset();
   }
 
   // toggle auth mode - login or signup

@@ -74,6 +74,10 @@ export class AuthService {
   logout() {
     // emit user logout
     this._user.next(null);
+
+    // clear storage data (localstorage/device storage)
+    //Storage.clear(); // clears all data
+    Storage.remove({ key: 'AuthData' }); // clear specific data
   }
 
   // finds Auth data in storage and if it finds it and is valid, then automaticaly logs user in.
