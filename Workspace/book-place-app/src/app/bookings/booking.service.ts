@@ -136,7 +136,7 @@ export class BookingService {
       take(1),
       switchMap((token) => {
         return this.http.get<{ [key: string]: BookingData }>(
-          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${userId}"&auth=${token}`
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${fetchedUserId}"&auth=${token}`
         );
       }),
       // take(1), not required because http requests return only once
