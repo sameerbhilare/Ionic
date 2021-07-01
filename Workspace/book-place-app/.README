@@ -17,5 +17,5 @@
 Missing elements -
 1. firebase functions backend not implemented. Place Image upload will not work.
 Basically the uploaded image should be stored into some cloud storage and its URL need to be saved into
-firebase database under the offerred_places under imageUrl.
+firebase database under the offerred_places under imageUrl, so that when places are loaded the images will be loaded from given URLs.
 
