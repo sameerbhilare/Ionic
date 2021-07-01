@@ -6,7 +6,6 @@ import { Place } from '../place.model';
 import { PlacesService } from '../places.service';
 import { AuthService } from '../../auth/auth.service';
 import { take } from 'rxjs/operators';
-import { AnyRecordWithTtl } from 'dns';
 
 @Component({
   selector: 'app-discover',
