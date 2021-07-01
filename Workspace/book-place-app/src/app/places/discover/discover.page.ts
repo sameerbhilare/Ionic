@@ -6,6 +6,7 @@ import { Place } from '../place.model';
 import { PlacesService } from '../places.service';
 import { AuthService } from '../../auth/auth.service';
 import { take } from 'rxjs/operators';
+import { AnyRecordWithTtl } from 'dns';
 
 @Component({
   selector: 'app-discover',
@@ -58,6 +59,10 @@ export class DiscoverPage implements OnInit, OnDestroy {
       this.relevantPlaces = this.loadedPlaces.filter(isShown);
       this.filter = filter;
     });
+  }
+
+  onFilterUpdateUI(event: any) {
+    this.onFilterUpdate(event.detail.value);
   }
 
   ngOnDestroy() {

@@ -17,7 +17,7 @@
 <ion-content>
   <!-- ion-segment component allows you to add segmented buttons,
     which means buttons were only one button of the set of buttons can be active at a time. -->
-  <ion-segment value="all" (ionChange)="onFilterUpdate($event.detail.value)">
+  <ion-segment value="all" (ionChange)="onFilterUpdateUI($event)">
     <ion-segment-button value="all">All Places</ion-segment-button>
     <ion-segment-button value="bookable">Bookable Places</ion-segment-button>
   </ion-segment>
