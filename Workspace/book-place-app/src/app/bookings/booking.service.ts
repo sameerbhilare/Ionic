@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { delay, take, tap, switchMap, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { stringify } from '@angular/compiler/src/util';
 
 interface BookingData {
   bookFrom: string;
@@ -44,6 +45,7 @@ export class BookingService {
   ) {
     let generatedId: string;
     let newBooking: Booking;
+    let fetchedUserId: string;
     return this.authService.userId.pipe(
       // take latest snapshot only
       take(1),
@@ -52,11 +54,16 @@ export class BookingService {
         if (!userId) {
           throw new Error('No UserId found!');
         }
+        fetchedUserId = userId;
 
+        return this.authService.token;
+      }),
+      take(1),
+      switchMap((token) => {
         newBooking = new Booking(
           Math.random().toString(),
           placeId,
-          userId,
+          fetchedUserId,
           placeTitle,
           placeImage,
           firstName,
@@ -67,7 +74,7 @@ export class BookingService {
         );
 
         return this.http.post<{ name: string }>(
-          'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json',
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?auth=${token}`,
           { ...newBooking, id: null }
         );
       }),
@@ -87,29 +94,33 @@ export class BookingService {
   }
 
   cancelBooking(bookingId: string) {
-    // delete booking on server
-    return this.http
-      .delete(
-        `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings/${bookingId}.json`
-      )
-      .pipe(
-        switchMap(() => {
-          // do nothing with the delete response, just return new observable of local list of bookings
-          return this.bookings;
-        }),
-        // just take one (latest) snapshot
-        take(1), // imp
-        // remove the booking from local array
-        tap((bookingsArr) => {
-          this._bookings.next(
-            bookingsArr.filter((booking) => booking.id !== bookingId)
-          );
-        })
-      );
+    return this.authService.token.pipe(
+      take(1),
+      switchMap((token) => {
+        // delete booking on server
+        return this.http.delete(
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings/${bookingId}.json?auth=${token}`
+        );
+      }),
+      take(1),
+      switchMap(() => {
+        // do nothing with the delete response, just return new observable of local list of bookings
+        return this.bookings;
+      }),
+      // just take one (latest) snapshot
+      take(1), // imp
+      // remove the booking from local array
+      tap((bookingsArr) => {
+        this._bookings.next(
+          bookingsArr.filter((booking) => booking.id !== bookingId)
+        );
+      })
+    );
   }
 
   fetchBookings() {
     // fetch bookings for currently logged in user
+    let fetchedUserId: string;
     return this.authService.userId.pipe(
       // take latest snapshot only
       take(1),
@@ -118,9 +129,14 @@ export class BookingService {
         if (!userId) {
           throw new Error('No UserId found!');
         }
+        fetchedUserId = userId;
 
+        return this.authService.token;
+      }),
+      take(1),
+      switchMap((token) => {
         return this.http.get<{ [key: string]: BookingData }>(
-          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${userId}"`
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${userId}"&auth=${token}`
         );
       }),
       take(1),
