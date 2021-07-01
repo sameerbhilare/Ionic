@@ -123,7 +123,7 @@ export class LocationPickerComponent implements OnInit {
     this.isLoading = true;
     this.getAddress(lat, lng)
       .pipe(
-        take(1),
+        // take(1), not required because http requests return only once
         switchMap((address) => {
           console.log('Address => ', address);
           pickedLocation.address = address;

@@ -74,7 +74,7 @@ export class PlacesService {
           `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json?auth=${token}`
         );
       }),
-      take(1),
+      // take(1), not required because http requests return only once
       // map operator gets responseData and returns restructured data
       map((resData) => {
         console.log(resData);
@@ -116,7 +116,7 @@ export class PlacesService {
           `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places/${placeId}.json?auth=${token}`
         );
       }),
-      take(1),
+      // take(1), not required because http requests return only once
       map((placeData) => {
         return new Place(
           placeId,
@@ -183,7 +183,7 @@ export class PlacesService {
           { ...newPlace, id: null }
         );
       }),
-      take(1),
+      // take(1), not required because http requests return only once
       // gets data and returns new observation and will replace existing observable in the chain
       switchMap((responseData) => {
         generatedId = responseData.name;
@@ -250,8 +250,7 @@ export class PlacesService {
           { ...updatedPlaces[updatedPlaceIndex], id: null }
         );
       }),
-      // only take the latest and dont set active subscription
-      take(1),
+      // take(1), not required because http requests return only once
       tap((resData) => {
         // emit updated places array
         this._places.next(updatedPlaces);

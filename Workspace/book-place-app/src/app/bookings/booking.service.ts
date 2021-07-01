@@ -78,7 +78,7 @@ export class BookingService {
           { ...newBooking, id: null }
         );
       }),
-      take(1),
+      // take(1), not required because http requests return only once
       // get POST response and get generatedId and return new observable of bookings
       switchMap((resData) => {
         generatedId = resData.name;
@@ -102,7 +102,7 @@ export class BookingService {
           `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings/${bookingId}.json?auth=${token}`
         );
       }),
-      take(1),
+      // take(1), not required because http requests return only once
       switchMap(() => {
         // do nothing with the delete response, just return new observable of local list of bookings
         return this.bookings;
@@ -139,7 +139,7 @@ export class BookingService {
           `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${userId}"&auth=${token}`
         );
       }),
-      take(1),
+      // take(1), not required because http requests return only once
       map((bookingData) => {
         const bookings = [];
         for (const key in bookingData) {
