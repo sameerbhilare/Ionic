@@ -71,6 +71,7 @@ export class BookingService {
           { ...newBooking, id: null }
         );
       }),
+      take(1),
       // get POST response and get generatedId and return new observable of bookings
       switchMap((resData) => {
         generatedId = resData.name;
@@ -122,6 +123,7 @@ export class BookingService {
           `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/bookings.json?orderBy="userId"&equalTo="${userId}"`
         );
       }),
+      take(1),
       map((bookingData) => {
         const bookings = [];
         for (const key in bookingData) {

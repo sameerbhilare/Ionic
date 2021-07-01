@@ -9,7 +9,7 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { Geolocation, Position } from '@capacitor/geolocation';
 import { MapModalComponent } from '../../map-modal/map-modal.component';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { PlaceLocation, Coordinates } from '../../../places/location.model';
 import { of } from 'rxjs';
@@ -123,13 +123,15 @@ export class LocationPickerComponent implements OnInit {
     this.isLoading = true;
     this.getAddress(lat, lng)
       .pipe(
+        take(1),
         switchMap((address) => {
           console.log('Address => ', address);
           pickedLocation.address = address;
           return of(
             this.getMapImage(pickedLocation.lat, pickedLocation.lng, 14)
           );
-        })
+        }),
+        take(1)
       )
       .subscribe(
         (staticMapImageUrl) => {

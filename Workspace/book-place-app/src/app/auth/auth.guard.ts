@@ -65,6 +65,7 @@ export class AuthGuard implements CanLoad, CanActivate {
           return of(isAuthenticated);
         }
       }),
+      take(1),
       tap((isAuthenticated) => {
         if (!isAuthenticated) {
           // if user is not authenticated, navigate the user to the Login page

@@ -59,7 +59,8 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
             fetchedUserId = userId;
 
             return this.placesService.getPlace(paramMap.get('placeId'));
-          })
+          }),
+          take(1)
         )
         .subscribe(
           (place) => {
