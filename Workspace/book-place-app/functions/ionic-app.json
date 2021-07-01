@@ -1,0 +1,12 @@
+{
+  "type": "<get from firebase project>",
+  "project_id": "<get from firebase project>",
+  "private_key_id": "<get from firebase project>",
+  "private_key": "<get from firebase project>",
+  "client_email": "<get from firebase project>",
+  "client_id": "<get from firebase project>",
+  "auth_uri": "<get from firebase project>",
+  "token_uri": "<get from firebase project>",
+  "auth_provider_x509_cert_url": "<get from firebase project>",
+  "client_x509_cert_url": "<get from firebase project>"
+}
