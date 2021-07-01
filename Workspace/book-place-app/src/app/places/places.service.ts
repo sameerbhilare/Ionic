@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable arrow-body-style */
 /* eslint-disable @typescript-eslint/quotes */
 /* eslint-disable no-underscore-dangle */
@@ -65,71 +66,75 @@ export class PlacesService {
   }
 
   fetchPlaces() {
-    // returns key of any name and value as PlaceData object
-    return this.http
-      .get<{ [key: string]: PlaceData }>(
-        'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json'
-      )
-      .pipe(
-        // map operator gets responseData and returns restructured data
-        map((resData) => {
-          console.log(resData);
-          // first convert the object to array
-          const places = [];
-          for (const key in resData) {
-            if (resData.hasOwnProperty(key)) {
-              places.push(
-                new Place(
-                  key,
-                  resData[key].title,
-                  resData[key].description,
-                  resData[key].imageUrl,
-                  resData[key].price,
-                  new Date(resData[key].availableFrom),
-                  new Date(resData[key].availableTo),
-                  resData[key].userId,
-                  resData[key].location
-                )
-              );
-            }
+    return this.authService.token.pipe(
+      take(1),
+      switchMap((token) => {
+        // returns key of any name and value as PlaceData object
+        return this.http.get<{ [key: string]: PlaceData }>(
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json?auth=${token}`
+        );
+      }),
+      // map operator gets responseData and returns restructured data
+      map((resData) => {
+        console.log(resData);
+        // first convert the object to array
+        const places = [];
+        for (const key in resData) {
+          if (resData.hasOwnProperty(key)) {
+            places.push(
+              new Place(
+                key,
+                resData[key].title,
+                resData[key].description,
+                resData[key].imageUrl,
+                resData[key].price,
+                new Date(resData[key].availableFrom),
+                new Date(resData[key].availableTo),
+                resData[key].userId,
+                resData[key].location
+              )
+            );
           }
-          return places;
-          //return []; // for faking case when there is no data
-        }),
-        tap((places) => {
-          // so that all the subscribers will get latest data
-          this._places.next(places);
-        })
-      );
+        }
+        return places;
+        //return []; // for faking case when there is no data
+      }),
+      tap((places) => {
+        // so that all the subscribers will get latest data
+        this._places.next(places);
+      })
+    );
   }
 
   getPlace(placeId: string) {
-    // returning a clone
-    return this.http
-      .get<PlaceData>(
-        `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places/${placeId}.json`
-      )
-      .pipe(
-        map((placeData) => {
-          return new Place(
-            placeId,
-            placeData.title,
-            placeData.description,
-            placeData.imageUrl,
-            placeData.price,
-            new Date(placeData.availableFrom),
-            new Date(placeData.availableTo),
-            placeData.userId,
-            placeData.location
-          );
-        })
-      );
-    return this._places.pipe(
+    return this.authService.token.pipe(
       take(1),
-      map((placesArr) => {
-        return { ...placesArr.find((p) => p.id === placeId) };
+      switchMap((token) => {
+        // returning a clone
+        return this.http.get<PlaceData>(
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places/${placeId}.json?auth=${token}`
+        );
+      }),
+      map((placeData) => {
+        return new Place(
+          placeId,
+          placeData.title,
+          placeData.description,
+          placeData.imageUrl,
+          placeData.price,
+          new Date(placeData.availableFrom),
+          new Date(placeData.availableTo),
+          placeData.userId,
+          placeData.location
+        );
       })
     );
+    // return this._places.pipe(
+    //   take(1),
+    //   map((placesArr) => {
+    //     return { ...placesArr.find((p) => p.id === placeId) };
+    //   })
+    // );
   }
 
   addPlace(
@@ -142,15 +147,22 @@ export class PlacesService {
   ) {
     let generatedId: string;
     let newPlace: Place;
+    let fetchedUserId: string;
     return this.authService.userId.pipe(
       // take latest snapshot only
       take(1),
-      // get userId and create booking and return new observable to POST the booking
+      // get userId, store it and return new observable for token
       switchMap((userId) => {
         if (!userId) {
           throw new Error('No UserId found!');
         }
-
+        fetchedUserId = userId;
+        return this.authService.token;
+      }),
+      // take latest snapshot only
+      take(1),
+      // get token and create booking and return new observable to POST the booking
+      switchMap((token) => {
         newPlace = new Place(
           Math.random().toString(),
           title,
@@ -159,12 +171,12 @@ export class PlacesService {
           price,
           dateFrom,
           dateTo,
-          userId,
+          fetchedUserId,
           location
         );
 
         return this.http.post<{ name: string }>(
-          'https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json',
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places.json?auth=${token}`,
           // copy all properties but set id to null as firebase will set the id while saving
           { ...newPlace, id: null }
         );
@@ -189,8 +201,13 @@ export class PlacesService {
 
   updatePlace(placeId: string, title: string, description: string) {
     let updatedPlaces: Place[] = [];
-
-    return this._places.pipe(
+    let fetchedToken: string;
+    return this.authService.token.pipe(
+      take(1),
+      switchMap((token) => {
+        fetchedToken = token;
+        return this._places;
+      }),
       // only take the latest and dont set active subscription
       take(1),
       // return places (either by fetching or alredy fetched)
@@ -202,6 +219,8 @@ export class PlacesService {
           return of(places);
         }
       }),
+      // only take the latest and dont set active subscription
+      take(1),
       // here places are guaranteed to be present
       switchMap((places) => {
         // find updated place index
@@ -224,10 +243,12 @@ export class PlacesService {
         // return different observable
         // put will replace existing data with new data
         return this.http.put(
-          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places/${placeId}.json`,
+          `https://ionic-angular-course-6fe16-default-rtdb.asia-southeast1.firebasedatabase.app/offerred-places/${placeId}.json?auth=${fetchedToken}`,
           { ...updatedPlaces[updatedPlaceIndex], id: null }
         );
       }),
+      // only take the latest and dont set active subscription
+      take(1),
       tap((resData) => {
         // emit updated places array
         this._places.next(updatedPlaces);
